@@ -1,10 +1,13 @@
 var express = require("express");
 var bodyParser = require("body-parser");
 var cors = require("cors");
+//var proxy = require('http-proxy-middleware');
 
 var mongoose = require("./config/mongoose");
 
 var app = express();
+
+const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -15,6 +18,8 @@ var test = require("./modules/sucursal/index");
 var funcionario = require("./modules/funcionario/index");
 var evento = require("./modules/calendario/index");
 var asistencia = require("./modules/asistencia/index");
+
+// proxy({target: 'http://chiprx.itaipu:8080', changeOrigin: true})
 
 app.use("/sucursales", test);
 app.use("/funcionarios", funcionario);
@@ -56,6 +61,12 @@ app.use("/asistencias", asistencia);
 //   );
 // });
 
-app.listen(3000, () => console.log("Started on port 3000"));
+app.get('/', (req, res) => {
+    res.send("<h1> Hello! <h1/>");
+});
+
+app.listen(port, () => {
+    console.log(`Started up at port ${port}`);
+  });
 
 module.exports = { app };
