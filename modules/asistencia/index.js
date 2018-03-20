@@ -34,10 +34,12 @@ asistenciaRoutes.route("/test-data").post(function(req, res) {
     asistencia
       .save()
       .then(item => {
-        res.status(200).json({ item: "Item added successfully" });
+        console.log(item);
+       // res.status(200).json({ item: "Item added successfully" });
       })
       .catch(err => {
-        res.status(400).send("unable to save to database");
+        console.log(err);
+       // res.status(400).send("unable to save to database");
       });
   });
 });
