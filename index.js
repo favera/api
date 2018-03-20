@@ -18,6 +18,7 @@ var test = require("./modules/sucursal/index");
 var funcionario = require("./modules/funcionario/index");
 var evento = require("./modules/calendario/index");
 var asistencia = require("./modules/asistencia/index");
+var adelanto = require("./modules/adelanto/index");
 
 // proxy({target: 'http://chiprx.itaipu:8080', changeOrigin: true})
 
@@ -25,6 +26,7 @@ app.use("/sucursales", test);
 app.use("/funcionarios", funcionario);
 app.use("/eventos", evento);
 app.use("/asistencias", asistencia);
+app.use("/adelantos", adelanto);
 // app.use(sucursal);
 
 // var blogSchema = new Schema({
