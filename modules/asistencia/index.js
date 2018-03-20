@@ -22,6 +22,26 @@ asistenciaRoutes.route("/add").post(function(req, res) {
     });
 });
 
+// Defined store route
+asistenciaRoutes.route("/test-data").post(function(req, res) {
+  console.log(req.body);
+  req.body.forEach(element => {
+    if (element.fecha) {
+      element.fecha = new Date(element.fecha);
+    }
+
+    var asistencia = new Asistencia(element);
+    asistencia
+      .save()
+      .then(item => {
+        res.status(200).json({ item: "Item added successfully" });
+      })
+      .catch(err => {
+        res.status(400).send("unable to save to database");
+      });
+  });
+});
+
 //return all asistencias
 asistenciaRoutes.route("/full-list").get(function(req, res) {
   Asistencia.find().then(result => {
@@ -39,7 +59,7 @@ asistenciaRoutes.route("/").get(function(req, res) {
   console.log("Resultado query", query);
   var options = {
     sort: { nombre: 1 },
-    populate: { path: "sucursal" },
+    populate: { path: "funcionario" },
     lean: true,
     page: parseInt(req.query.page),
     limit: parseInt(req.query.limit)

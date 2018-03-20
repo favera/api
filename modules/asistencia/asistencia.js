@@ -20,16 +20,13 @@ var mongoosePaginate = require("mongoose-paginate");
 var Asistencia = new Schema(
   {
     fecha: {
-      type: Date,
-      required: true
+      type: Date
     },
     entrada: {
-      type: String,
-      required: true
+      type: String
     },
     salida: {
-      type: String,
-      required: true
+      type: String
     },
     funcionario: {
       type: Schema.Types.ObjectId,
