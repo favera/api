@@ -35,11 +35,11 @@ asistenciaRoutes.route("/test-data").post(function(req, res) {
       .save()
       .then(item => {
         console.log(item);
-       // res.status(200).json({ item: "Item added successfully" });
+        // res.status(200).json({ item: "Item added successfully" });
       })
       .catch(err => {
         console.log(err);
-       // res.status(400).send("unable to save to database");
+        // res.status(400).send("unable to save to database");
       });
   });
 });
@@ -47,6 +47,20 @@ asistenciaRoutes.route("/test-data").post(function(req, res) {
 //return all asistencias
 asistenciaRoutes.route("/full-list").get(function(req, res) {
   Asistencia.find().then(result => {
+    res.json(result);
+  });
+});
+
+asistenciaRoutes.route("/test-get").get(function(req, res) {
+  var options = {
+    populate: { path: "funcionario", match: { nombre: /CAR/ } },
+    lean: true
+  };
+  Asistencia.paginate({}, options).then(result => {
+    result.docs = result.docs.filter(function(asistencia) {
+      return asistencia.funcionario != null;
+    });
+    result.total = result.docs.length;
     res.json(result);
   });
 });
