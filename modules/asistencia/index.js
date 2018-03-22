@@ -51,16 +51,81 @@ asistenciaRoutes.route("/full-list").get(function(req, res) {
   });
 });
 
-asistenciaRoutes.route("/test-get").get(function(req, res) {
+asistenciaRoutes.route("/query-data").get(function(req, res) {
+  var inicio, fin, estado, busqueda;
+  if (req.query.inicio) {
+    inicio = new Date(req.query.inicio);
+  }
+  if (req.query.fin) {
+    fin = new Date(req.query.fin);
+  }
+
+  if (req.query.estado === "ausente" && busqueda) {
+    var query = {
+      fecha: { $gte: inicio, $lte: fin },
+      "estilo.ausente": { $eq: true },
+      $or: [
+        { nombreFuncionario: { $regex: req.query.busqueda, $options: "i" } },
+        { observacion: { $regex: req.query.busqueda, $options: "i" } }
+      ]
+    };
+  }
+
+  if (req.query.estado === "incompletos") {
+    var query = {
+      fecha: { $gte: inicio, $lte: fin },
+      "estilo.incompleto": { $eq: true }
+    };
+  }
+
+  if (req.query.estado === "vacaciones") {
+    var query = {
+      fecha: { $gte: inicio, $lte: fin },
+      "estilo.vacaciones": { $eq: true }
+    };
+  }
+
+  if (req.query.busqueda) {
+    var query = {
+      fecha: { $gte: inicio, $lte: fin },
+      $or: [
+        { nombreFuncionario: { $regex: req.query.busqueda, $options: "i" } },
+        { observacion: { $regex: req.query.busqueda, $options: "i" } }
+      ]
+    };
+  }
+
+  // var inicio = new Date(req.query.inicio);
+  // var fin = new Date(req.query.fin);
+  // var query = {
+  //   fecha: { $gte: inicio, $lte: fin },
+  //   "estilo.ausente": { $eq: true }
+  //   // $or: [
+  //   //   { fecha: { $gte: inicio, $lte: fin } },
+  //   //   { "estilo.ausente": { $eq: true } }
+  //   // ]
+  // };
+
+  // var query = {
+  //   fecha: { $gte: inicio, $lte: fin },
+  //   $or: [
+  //     { nombreFuncionario: { $regex: req.query.busqueda, $options: "i" } },
+  //     { observacion: { $regex: req.query.busqueda, $options: "i" } }
+  //   ]
+  // };
   var options = {
-    populate: { path: "funcionario", match: { nombre: /CAR/ } },
-    lean: true
+    //populate: { path: "funcionario", select: "nombre" },
+    lean: true,
+    // page: 1,
+    //limit: 10
+    page: parseInt(req.query.page),
+    limit: parseInt(req.query.limit)
   };
-  Asistencia.paginate({}, options).then(result => {
-    result.docs = result.docs.filter(function(asistencia) {
-      return asistencia.funcionario != null;
-    });
-    result.total = result.docs.length;
+  Asistencia.paginate(query, options).then(result => {
+    // result.docs = result.docs.filter(function(asistencia) {
+    //   return asistencia.funcionario != null;
+    // });
+    // result.total = result.docs.length;
     res.json(result);
   });
 });
