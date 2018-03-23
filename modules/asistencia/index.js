@@ -60,7 +60,7 @@ asistenciaRoutes.route("/query-data").get(function(req, res) {
     fin = new Date(req.query.fin);
   }
 
-  if (req.query.estado === "ausente" && busqueda) {
+  if (req.query.estado === "ausentes" && busqueda) {
     var query = {
       fecha: { $gte: inicio, $lte: fin },
       "estilo.ausente": { $eq: true },
@@ -68,6 +68,13 @@ asistenciaRoutes.route("/query-data").get(function(req, res) {
         { nombreFuncionario: { $regex: req.query.busqueda, $options: "i" } },
         { observacion: { $regex: req.query.busqueda, $options: "i" } }
       ]
+    };
+  }
+
+  if (req.query.estado === "ausentes") {
+    var query = {
+      fecha: { $gte: inicio, $lte: fin },
+      "estilo.ausente": { $eq: true }
     };
   }
 
@@ -191,6 +198,14 @@ asistenciaRoutes.route("/update/:id").put(function(req, res) {
       asistencia.entrada = req.body.entrada;
       asistencia.salida = req.body.salida;
       asistencia.funcionario = req.body.funcionario;
+      asistencia.nombreFuncionario = req.body.nombreFuncionario;
+      asistencia.horasTrabajadas = req.body.horasTrabajadas;
+      asistencia.horasExtras = req.body.horasExtras;
+      asistencia.horasFaltantes = req.body.horasFaltantes;
+      asistencia.observacion = req.body.observacion;
+      asistencia.estilo.ausente = req.body.estilo.ausente;
+      asistencia.estilo.incompleto = req.body.estilo.incompleto;
+      asistencia.estilo.vacaciones = req.body.estilo.vacaciones;
 
       asistencia
         .save()
@@ -205,30 +220,30 @@ asistenciaRoutes.route("/update/:id").put(function(req, res) {
 });
 
 //deactivate employee
-asistenciaRoutes.route("/deactivate/:id").put(function(req, res) {
-  Asistencia.findById(req.params.id, function(err, asistencia) {
-    if (!asistencia) return next(new Error("Could not load Document"));
-    else {
-      asistencia.activo = req.body.activo;
+// asistenciaRoutes.route("/deactivate/:id").put(function(req, res) {
+//   Asistencia.findById(req.params.id, function(err, asistencia) {
+//     if (!asistencia) return next(new Error("Could not load Document"));
+//     else {
+//       asistencia.activo = req.body.activo;
 
-      asistencia
-        .save()
-        .then(asistencia => {
-          res.json("Update complete");
-        })
-        .catch(err => {
-          res.status(400).send("unable to update the database");
-        });
-    }
-  });
-});
-
-// // Defined delete | remove | destroy route
-// itemRoutes.route("/delete/:id").get(function(req, res) {
-//   Item.findByIdAndRemove({ _id: req.params.id }, function(err, item) {
-//     if (err) res.json(err);
-//     else res.json("Successfully removed");
+//       asistencia
+//         .save()
+//         .then(asistencia => {
+//           res.json("Update complete");
+//         })
+//         .catch(err => {
+//           res.status(400).send("unable to update the database");
+//         });
+//     }
 //   });
 // });
+
+// // Defined delete | remove | destroy route
+asistenciaRoutes.route("/delete/:id").delete(function(req, res) {
+  Asistencia.findByIdAndRemove({ _id: req.params.id }, function(err, item) {
+    if (err) res.json(err);
+    else res.json("Successfully removed");
+  });
+});
 
 module.exports = asistenciaRoutes;
