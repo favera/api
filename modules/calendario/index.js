@@ -29,6 +29,22 @@ eventoRoutes.route("/add").post(function(req, res) {
     });
 });
 
+eventoRoutes.route("/full-list").get(function(req, res){
+  if(req.query.inicio && req.query.fin){
+    req.query.inicio = new Date(req.query.inicio);
+    req.query.fin = new Date(req.query.fin);
+
+    //mongoose query
+    const query = Evento.find();
+
+    query.or([{fecha: {$gte: req.query.inicio, $lte:  req.query.fin}, fechaInicio:{$gte: req.query.inicio, $lte:  req.query.fin}, fechaFin: {$gte: req.query.inicio, $lte: req.query.fin }}]).exec(function(err, evento){
+      if(err) console.log(err);
+      else res.json(evento);
+    })
+  }
+
+})
+
 // Defined get data(index or listing) route
 eventoRoutes.route("/").get(function(req, res) {
   //console.log(req);
