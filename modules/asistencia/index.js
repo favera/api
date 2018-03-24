@@ -46,9 +46,19 @@ asistenciaRoutes.route("/test-data").post(function(req, res) {
 
 //return all asistencias
 asistenciaRoutes.route("/full-list").get(function(req, res) {
-  Asistencia.find().then(result => {
-    res.json(result);
-  });
+  var inicio, fin;
+  console.log(req.query.inicio);
+  if (req.query.inicio && req.query.fin) {
+    inicio = new Date(req.query.inicio);
+    fin = new Date(req.query.fin);
+    console.log(inicio, fin);
+  }
+
+  Asistencia.find({ fecha: { $gte: inicio, $lte: fin } })
+    .then(result => {
+      res.json(result);
+    })
+    .catch(e => console.log(e));
 });
 
 asistenciaRoutes.route("/query-data").get(function(req, res) {
@@ -59,25 +69,26 @@ asistenciaRoutes.route("/query-data").get(function(req, res) {
   }
   if (req.query.fin) {
     fin = new Date(req.query.fin);
-    console.log(fin)
+    console.log(fin);
   }
 
-  if(req.query.busqueda === "null"){
+  if (req.query.busqueda === "null") {
     req.query.busqueda = null;
   }
 
   console.log(typeof req.query.busqueda);
-  if(!req.query.busqueda){
+  if (!req.query.busqueda) {
     var query = {
-      fecha: { $gte: inicio, $lte: fin}
-    }
+      fecha: { $gte: inicio, $lte: fin }
+    };
   }
 
   if (req.query.estado === "ausentes" && req.query.busqueda) {
     console.log("ENTRO ACA");
     var query = {
       fecha: { $gte: inicio, $lte: fin },
-      "estilo.ausente": { $eq: true }, nombreFuncionario: { $regex: req.query.busqueda, $options: "i" }
+      "estilo.ausente": { $eq: true },
+      nombreFuncionario: { $regex: req.query.busqueda, $options: "i" }
       // $or: [
       //   { nombreFuncionario: { $regex: req.query.busqueda, $options: "i" } },
       //   { observacion: { $regex: req.query.busqueda, $options: "i" } }
@@ -85,7 +96,7 @@ asistenciaRoutes.route("/query-data").get(function(req, res) {
     };
   }
 
-  if (req.query.estado === "ausentes" ) {
+  if (req.query.estado === "ausentes") {
     var query = {
       fecha: { $gte: inicio, $lte: fin },
       "estilo.ausente": { $eq: true }
@@ -137,7 +148,7 @@ asistenciaRoutes.route("/query-data").get(function(req, res) {
       ]
     };
   }
- 
+
   var options = {
     //populate: { path: "funcionario", select: "nombre" },
     lean: true,

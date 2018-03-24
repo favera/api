@@ -29,21 +29,41 @@ eventoRoutes.route("/add").post(function(req, res) {
     });
 });
 
-eventoRoutes.route("/full-list").get(function(req, res){
-  if(req.query.inicio && req.query.fin){
-    req.query.inicio = new Date(req.query.inicio);
-    req.query.fin = new Date(req.query.fin);
-
-    //mongoose query
-    const query = Evento.find();
-
-    query.or([{fecha: {$gte: req.query.inicio, $lte:  req.query.fin}, fechaInicio:{$gte: req.query.inicio, $lte:  req.query.fin}, fechaFin: {$gte: req.query.inicio, $lte: req.query.fin }}]).exec(function(err, evento){
-      if(err) console.log(err);
-      else res.json(evento);
-    })
+//retorna los feriados y vacaciones del mes actual
+eventoRoutes.route("/full-list").get(function(req, res) {
+  var inicio, fin;
+  if (req.query.inicio && req.query.fin) {
+    inicio = new Date(req.query.inicio);
+    fin = new Date(req.query.fin);
   }
+  //mongoose query
+  const query = Evento.find();
+  console.log("Entro query mongoose");
 
-})
+  query
+    .or([
+      {
+        fechaFeriado: { $gte: inicio, $lte: fin }
+      },
+      { fechaInicio: { $gte: inicio, $lte: fin } },
+      { fechaFin: { $gte: inicio, $lte: fin } }
+    ])
+    .populate("funcionario")
+    .exec(function(err, evento) {
+      if (err) console.log(err);
+      else res.json(evento);
+    });
+
+  // Evento.find({
+  //   fechaFeriado: { $gte: inicio, $lte: fin }
+  // }).exec(function(err, eventos) {
+  //   if (err) {
+  //     console.log(err);
+  //   } else {
+  //     res.json(eventos);
+  //   }
+  // });
+});
 
 // Defined get data(index or listing) route
 eventoRoutes.route("/").get(function(req, res) {
