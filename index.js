@@ -9,7 +9,9 @@ var app = express();
 
 const port = process.env.PORT || 3000;
 
-app.use(bodyParser.json());
+//app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use(cors());
 
 // var sucursal = require("./modules/sucursal/index");
@@ -63,12 +65,12 @@ app.use("/adelantos", adelanto);
 //   );
 // });
 
-app.get('/', (req, res) => {
-    res.send("<h1> Hello! <h1/>");
+app.get("/", (req, res) => {
+  res.send("<h1> Hello! <h1/>");
 });
 
 app.listen(port, () => {
-    console.log(`Started up at port ${port}`);
-  });
+  console.log(`Started up at port ${port}`);
+});
 
 module.exports = { app };

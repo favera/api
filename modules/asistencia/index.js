@@ -25,23 +25,42 @@ asistenciaRoutes.route("/add").post(function(req, res) {
 // Defined store route
 asistenciaRoutes.route("/test-data").post(function(req, res) {
   console.log(req.body);
+  console.log("END BODY");
+
+  var asistencias = [];
   req.body.forEach(element => {
     if (element.fecha) {
       element.fecha = new Date(element.fecha);
+      console.log(element);
+      asistencias.push(element);
     }
 
-    var asistencia = new Asistencia(element);
-    asistencia
-      .save()
-      .then(item => {
-        console.log(item);
-        // res.status(200).json({ item: "Item added successfully" });
-      })
-      .catch(err => {
-        console.log(err);
-        // res.status(400).send("unable to save to database");
-      });
+    // var asistencia = new Asistencia(element);
+    // asistencia
+    //   .save()
+    //   .then(item => {
+    //     console.log(item);
+    //     success = true;
+    //     // res.status(200).json({ item: "Item added successfully" });
+    //   })
+    //   .catch(err => {
+    //     console.log(err);
+    //     // res.status(400).send("unable to save to database");
+    //   });
   });
+
+  console.log(JSON.stringify(asistencias));
+  Asistencia.insertMany(asistencias)
+    .then(docs => {
+      asistencias.length = 0;
+      console.log("Response?", docs);
+      res.status(200).json({ item: "Item added successfully" });
+    })
+    .catch(e => console.log("Error", e));
+  // console.log(success);
+  // if (success) {
+  //   res.status(200).json({ item: "Item added successfully" });
+  // }
 });
 
 //return all asistencias
