@@ -95,27 +95,39 @@ asistenciaRoutes.route("/query-data").get(function(req, res) {
     req.query.busqueda = null;
   }
 
-  console.log(typeof req.query.busqueda);
+  //console.log(typeof req.query.busqueda);
   if (!req.query.busqueda) {
+    console.log("Busqueda null");
     var query = {
       fecha: { $gte: inicio, $lte: fin }
     };
   }
 
+  // $or: [
+  //   { nombreFuncionario: { $regex: req.query.busqueda, $options: "i" } },
+  //   { observacion: { $regex: req.query.busqueda, $options: "i" } }
+  // ]
+
   if (req.query.estado === "ausentes" && req.query.busqueda) {
-    console.log("ENTRO ACA");
+    console.log("ausentes e incompletos");
     var query = {
-      fecha: { $gte: inicio, $lte: fin },
-      "estilo.ausente": { $eq: true },
-      nombreFuncionario: { $regex: req.query.busqueda, $options: "i" }
-      // $or: [
-      //   { nombreFuncionario: { $regex: req.query.busqueda, $options: "i" } },
-      //   { observacion: { $regex: req.query.busqueda, $options: "i" } }
-      // ]
+      $and: [
+        { fecha: { $gte: inicio, $lte: fin } },
+        { "estilo.ausente": { $eq: true } },
+        {
+          $or: [
+            {
+              nombreFuncionario: { $regex: req.query.busqueda, $options: "i" }
+            },
+            { observacion: { $regex: req.query.busqueda, $options: "i" } }
+          ]
+        }
+      ]
     };
   }
 
-  if (req.query.estado === "ausentes") {
+  if (req.query.estado === "ausentes" && !req.query.busqueda) {
+    console.log("solo ausentes");
     var query = {
       fecha: { $gte: inicio, $lte: fin },
       "estilo.ausente": { $eq: true }
@@ -123,17 +135,25 @@ asistenciaRoutes.route("/query-data").get(function(req, res) {
   }
 
   if (req.query.estado === "incompletos" && req.query.busqueda) {
+    console.log("incompletos y busqueda");
     var query = {
-      fecha: { $gte: inicio, $lte: fin },
-      "estilo.incompleto": { $eq: true },
-      $or: [
-        { nombreFuncionario: { $regex: req.query.busqueda, $options: "i" } },
-        { observacion: { $regex: req.query.busqueda, $options: "i" } }
+      $and: [
+        { fecha: { $gte: inicio, $lte: fin } },
+        { "estilo.incompleto": { $eq: true } },
+        {
+          $or: [
+            {
+              nombreFuncionario: { $regex: req.query.busqueda, $options: "i" }
+            },
+            { observacion: { $regex: req.query.busqueda, $options: "i" } }
+          ]
+        }
       ]
     };
   }
 
-  if (req.query.estado === "incompletos") {
+  if (req.query.estado === "incompletos" && !req.query.busqueda) {
+    console.log("solo incompletos");
     var query = {
       fecha: { $gte: inicio, $lte: fin },
       "estilo.incompleto": { $eq: true }
@@ -141,24 +161,32 @@ asistenciaRoutes.route("/query-data").get(function(req, res) {
   }
 
   if (req.query.estado === "vacaciones" && req.query.busqueda) {
+    console.log("consulta vacaciones y busqueda");
     var query = {
-      fecha: { $gte: inicio, $lte: fin },
-      "estilo.vacaciones": { $eq: true },
-      $or: [
-        { nombreFuncionario: { $regex: req.query.busqueda, $options: "i" } },
-        { observacion: { $regex: req.query.busqueda, $options: "i" } }
+      $and: [
+        { fecha: { $gte: inicio, $lte: fin } },
+        { "estilo.vacaciones": { $eq: true } },
+        {
+          $or: [
+            {
+              nombreFuncionario: { $regex: req.query.busqueda, $options: "i" }
+            },
+            { observacion: { $regex: req.query.busqueda, $options: "i" } }
+          ]
+        }
       ]
     };
   }
 
-  if (req.query.estado === "vacaciones") {
+  if (req.query.estado === "vacaciones" && !req.query.busqueda) {
     var query = {
       fecha: { $gte: inicio, $lte: fin },
       "estilo.vacaciones": { $eq: true }
     };
   }
 
-  if (req.query.busqueda) {
+  if (req.query.busqueda && req.query.estado === "todos") {
+    console.log("Solo Busqueda");
     var query = {
       fecha: { $gte: inicio, $lte: fin },
       $or: [
