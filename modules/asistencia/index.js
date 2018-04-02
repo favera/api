@@ -188,10 +188,16 @@ asistenciaRoutes.route("/query-data").get(function(req, res) {
   if (req.query.busqueda && req.query.estado === "todos") {
     console.log("Solo Busqueda");
     var query = {
-      fecha: { $gte: inicio, $lte: fin },
-      $or: [
-        { nombreFuncionario: { $regex: req.query.busqueda, $options: "i" } },
-        { observacion: { $regex: req.query.busqueda, $options: "i" } }
+      $and: [
+        { fecha: { $gte: inicio, $lte: fin } },
+        {
+          $or: [
+            {
+              nombreFuncionario: { $regex: req.query.busqueda, $options: "i" }
+            },
+            { observacion: { $regex: req.query.busqueda, $options: "i" } }
+          ]
+        }
       ]
     };
   }
