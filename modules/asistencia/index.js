@@ -11,15 +11,25 @@ asistenciaRoutes.route("/add").post(function(req, res) {
   if (req.body.fecha) {
     req.body.fecha = new Date(req.body.fecha);
   }
+
   var asistencia = new Asistencia(req.body);
-  asistencia
+ 
+    asistencia
     .save()
     .then(item => {
       res.status(200).json({ item: "Item added successfully" });
     })
     .catch(err => {
-      res.status(400).send("unable to save to database");
+      if(err.message.indexOf('duplicate key error') !== -1){
+        console.log(err);
+        Asistencia.findOneAndUpdate({funcionario: req.body.funcionario}, {entrada: req.body.entrada}, {new: true}, function(err){
+          if(err) console.log(err);
+        })
+      };
+      //console.log(err);
+      //res.status(400).send("unable to save to database");
     });
+ 
 });
 
 // Defined store route

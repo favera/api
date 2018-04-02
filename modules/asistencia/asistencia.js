@@ -5,32 +5,33 @@ var mongoosePaginate = require("mongoose-paginate");
 var Asistencia = new Schema(
   {
     fecha: {
-      type: Date
+      type: Date,
+      required: true
     },
     entrada: {
-      type: String
+      type: String,
+      required: true
     },
     salida: {
-      type: String
+      type: String,
+      required: true
     },
     funcionario: {
       type: Schema.Types.ObjectId,
-      ref: "Funcionario"
+      ref: "Funcionario",
+      required: true
     },
     nombreFuncionario: {
       type: String
     },
     horasTrabajadas: {
       type: String
-      //required: true
     },
     horasExtras: {
       type: String
-      //required: true
     },
     horasFaltantes: {
       type: String
-      //required: true
     },
     observacion: {
       type: String
@@ -54,6 +55,7 @@ var Asistencia = new Schema(
     collection: "asistencias"
   }
 );
+Asistencia.index({fecha: 1, funcionario: 1}, {unique: true})
 Asistencia.plugin(mongoosePaginate);
 
 module.exports = mongoose.model("Asistencia", Asistencia);
