@@ -9,12 +9,12 @@ var Asistencia = new Schema(
       required: true
     },
     entrada: {
-      type: String,
-      required: true
+      type: String
+      //required: true
     },
     salida: {
-      type: String,
-      required: true
+      type: String
+      //required: true
     },
     funcionario: {
       type: Schema.Types.ObjectId,

@@ -5,6 +5,7 @@ var sucursalRoutes = express.Router();
 
 // Require Item model in our routes module
 var Sucursal = require("./sucursal");
+var Funcionario = require("../funcionario/funcionario");
 
 // Defined store route
 sucursalRoutes.route("/add").post(function(req, res) {
@@ -62,10 +63,18 @@ sucursalRoutes.route("/update/:id").put(function(req, res) {
 
 // // Defined delete | remove | destroy route
 sucursalRoutes.route("/delete/:id").get(function(req, res) {
-  Sucursal.findByIdAndRemove({ _id: req.params.id }, function(err, sucursal) {
-    if (err) res.json(err);
-    else res.json("Successfully removed");
+  var sucursales = []
+  // Funcionario.distinct("sucursal", function(err, response){
+  //   console.log(response);
+  // })
+  Sucursal.find({"_id":{$nin : Funcionario.distinct("sucursal")}}, function(err, sucursalesEliminar){
+    //sucursales = sucursalesEliminar;
+    console.log(err, sucursalesEliminar);
   });
+  // Sucursal.findByIdAndRemove({ _id: req.params.id }, function(err, sucursal) {
+  //   if (err) res.json(err);
+  //   else res.json("Successfully removed");
+  // });
 });
 
 module.exports = sucursalRoutes;

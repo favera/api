@@ -2,34 +2,53 @@
 
 var express = require("express");
 var asistenciaRoutes = express.Router();
+var ObjectID = require("mongodb").ObjectID;
 
 // Require Item model in our routes module
 var Asistencia = require("./asistencia");
 
 // Defined store route
 asistenciaRoutes.route("/add").post(function(req, res) {
-  if (req.body.fecha) {
-    req.body.fecha = new Date(req.body.fecha);
-  }
 
   var asistencia = new Asistencia(req.body);
- 
-    asistencia
+
+  asistencia
     .save()
     .then(item => {
       res.status(200).json({ item: "Item added successfully" });
     })
     .catch(err => {
-      if(err.message.indexOf('duplicate key error') !== -1){
-        console.log(err);
-        Asistencia.findOneAndUpdate({funcionario: req.body.funcionario}, {entrada: req.body.entrada}, {new: true}, function(err){
-          if(err) console.log(err);
-        })
-      };
-      //console.log(err);
-      //res.status(400).send("unable to save to database");
+      res.status(400).send("unable to save to database");
+      // if (err.message.indexOf("duplicate key error") !== -1) {
+      //   console.log(err);
+      //   Asistencia.findOneAndUpdate(
+      //     { funcionario: ObjectID(req.body.funcionario), fecha: new Date(req.body.fecha) },
+      //     {
+      //       $set: {
+      //         nombreFuncionario: req.body.nombreFuncionario,
+      //         entrada: req.body.entrada,
+      //         salida: req.body.salida,
+      //         horasTrabajadas: req.body.horasTrabajadas,
+      //         horasExtras: req.body.horasExtras,
+      //         horasFaltantes: req.body.horasFaltantes,
+      //         observacion: req.body.observacion,
+      //         estilo: req.body.estilo
+      //       }
+      //     },
+      //     { new: true },
+      //     function(err, asistenciaUpdated) {
+      //       if (err) console.log(err);
+      //       console.log(asistenciaUpdated);
+      //       res
+      //         .status(200)
+      //         .json({ asistenciaUpdated: "Actualizado con exito" });
+      //     }
+      //   );
+      // } else {
+      //   console.log(err);
+      //   res.status(400).send("unable to save to database");
+      // }
     });
- 
 });
 
 // Defined store route
@@ -45,18 +64,7 @@ asistenciaRoutes.route("/test-data").post(function(req, res) {
       asistencias.push(element);
     }
 
-    // var asistencia = new Asistencia(element);
-    // asistencia
-    //   .save()
-    //   .then(item => {
-    //     console.log(item);
-    //     success = true;
-    //     // res.status(200).json({ item: "Item added successfully" });
-    //   })
-    //   .catch(err => {
-    //     console.log(err);
-    //     // res.status(400).send("unable to save to database");
-    //   });
+    
   });
 
   console.log(JSON.stringify(asistencias));
@@ -83,7 +91,12 @@ asistenciaRoutes.route("/full-list").get(function(req, res) {
     console.log(inicio, fin);
   }
 
-  Asistencia.find({ fecha: { $gte: inicio, $lte: fin } })
+  if(req.query.fechaPlanilla){
+    inicio = fin = new Date(req.query.fechaPlanilla);
+    console.log(inicio, fin);
+  }
+
+  Asistencia.find({ fecha: { $gte: inicio, $lte: fin } }).populate('funcionario')
     .then(result => {
       res.json(result);
     })
@@ -213,7 +226,7 @@ asistenciaRoutes.route("/query-data").get(function(req, res) {
   }
 
   var options = {
-    //populate: { path: "funcionario", select: "nombre" },
+    populate: { path: "funcionario"},
     lean: true,
     page: parseInt(req.query.page),
     limit: parseInt(req.query.limit)
