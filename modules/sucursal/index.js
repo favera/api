@@ -71,7 +71,7 @@ sucursalRoutes.route("/delete/:id").get(function(req, res) {
     //sucursales = sucursalesEliminar;
     console.log(err, sucursalesEliminar);
   });
-  // Sucursal.findByIdAndRemove({ _id: req.params.id }, function(err, sucursal) {
+  // Sucursal.findByIdAndRemove({ _id: req.cd params.id }, function(err, sucursal) {
   //   if (err) res.json(err);
   //   else res.json("Successfully removed");
   // });
