@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 app.use(cors());
 
 // var sucursal = require("./modules/sucursal/index");
-
+var usuarios = require("./modules/usuario/index");
 var test = require("./modules/sucursal/index");
 var funcionario = require("./modules/funcionario/index");
 var evento = require("./modules/calendario/index");
@@ -31,6 +31,7 @@ app.use("/eventos", evento);
 app.use("/asistencias", asistencia);
 app.use("/adelantos", adelanto);
 app.use("/prestamos", prestamo);
+app.use("/users", usuarios);
 // app.use(sucursal);
 
 // var blogSchema = new Schema({
