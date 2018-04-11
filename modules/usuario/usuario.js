@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
-// var crypto = require("crypto");
-var jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const _ = require("lodash");
 var Schema = mongoose.Schema;
 
 var Usuario = new Schema({
@@ -39,10 +40,17 @@ var Usuario = new Schema({
 //   salt: String
 },
 {
-    collation: "usuarios"
+    collection: "usuarios"
 });
 
-Usuario.method.generateAuthToken = function(){
+Usuario.methods.toJSON = function(){
+    var user = this;
+    var userObject = user.toObject();
+
+    return _.pick(userObject, ['_id','email'])
+}
+
+Usuario.methods.generateAuthToken = function(){
     var user = this;
     var access = 'auth';
     var token = jwt.sign({_id: user._id.toHexString(), access}, 'abc123').toString();
@@ -51,6 +59,75 @@ Usuario.method.generateAuthToken = function(){
     return user.save().then(() => {
         return token;
     });
+}
+
+Usuario.pre("save", function(next){
+    var user = this;
+
+    if(user.isModified("password")){
+        bcrypt.genSalt(10, function(err, salt) {
+            bcrypt.hash(user.password, salt, function(err, hash) {
+                if(err)  console.log(err);
+                user.password = hash;
+                next(); 
+            });
+        });
+
+    }else {
+        next()
+    }
+})
+
+Usuario.statics.findByToken = function(token){
+    var User = this;
+    var decoded, queryUser;
+
+    try {
+        decoded = jwt.verify(token, "abc123");
+    } catch (error) {
+        //retorna un promise para que no ejecute el codigo del queryUser
+        return Promise.reject();
+    }
+    console.log("Busquedas", decoded._id, token);
+    queryUser = User.findOne({
+        "_id": decoded._id,
+        "tokens.token": token,
+        "tokens.access": "auth"
+    });
+
+    return queryUser
+}
+
+Usuario.statics.findByCredentials = function(email, password){
+    var User = this;
+
+    return User.findOne({email: email}).then(user => {
+        if(!user){
+            return Promise.reject();
+        }
+
+        return new Promise((resolve, reject)=> {
+            bcrypt.compare(password, user.password, (err, res)=> {
+                if(res){
+                    resolve(user);
+                }else{
+                    reject();
+                }
+            })
+        })
+    })
+}
+
+Usuario.methods.removeToken = function(token){
+    var user = this;
+    return user.update({
+        //$pull metodo de mongo debe que elimina de un array lo que le pasas en el objeto
+        $pull: {
+            tokens: {
+                token: token
+            }
+        }
+    })
 }
 
 // Usuario.methods.setPassword = function(password) {

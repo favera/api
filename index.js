@@ -1,6 +1,7 @@
 var express = require("express");
 var bodyParser = require("body-parser");
 var cors = require("cors");
+const _ = require("lodash");
 //var proxy = require('http-proxy-middleware');
 
 var mongoose = require("./config/mongoose");
@@ -12,9 +13,13 @@ const port = process.env.PORT || 3000;
 //app.use(bodyParser.json());
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
-app.use(cors());
+//hace visible en el response del header x-auth
+app.use(cors({
+  exposedHeaders: 'x-auth'
+}));
 
 // var sucursal = require("./modules/sucursal/index");
+var auth  = require("./midlewares/authenticate");
 var usuarios = require("./modules/usuario/index");
 var test = require("./modules/sucursal/index");
 var funcionario = require("./modules/funcionario/index");
@@ -22,6 +27,7 @@ var evento = require("./modules/calendario/index");
 var asistencia = require("./modules/asistencia/index");
 var adelanto = require("./modules/adelanto/index");
 var prestamo = require("./modules/prestamo/index");
+var Usuario = require("./modules/usuario/usuario");
 
 // proxy({target: 'http://chiprx.itaipu:8080', changeOrigin: true})
 
@@ -32,6 +38,21 @@ app.use("/asistencias", asistencia);
 app.use("/adelantos", adelanto);
 app.use("/prestamos", prestamo);
 app.use("/users", usuarios);
+
+app.post("/users/login", (req, res)=>{
+  var body = _.pick(req.body, ['email', 'password'])
+
+  Usuario.findByCredentials(body.email, body.password).then((user)=>{
+    //res.send(user);
+    return user.generateAuthToken().then((token)=>{
+      console.log(token);
+      res.header('x-auth', token).send(user);
+    })
+  }).catch((e)=> {
+    res.status(400).send();
+  })
+  
+})
 // app.use(sucursal);
 
 // var blogSchema = new Schema({
