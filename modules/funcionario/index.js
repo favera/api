@@ -28,10 +28,13 @@ funcionarioRoutes.route("/full-list").get(function(req, res) {
 
 // Defined get data(index or listing) route
 funcionarioRoutes.route("/").get(function(req, res) {
-  //console.log(req);
+  console.log(req.search);
   var query = { activo: true };
-  if (req.query.search) {
-    query = { nombre: { $regex: req.query.search, $options: "i" } };
+  if (req.search !== null) {
+    query = {
+      activo: true,
+      nombre: { $regex: req.query.search, $options: "i" }
+    };
   }
   console.log("Resultado query", query);
   var options = {
@@ -111,21 +114,12 @@ funcionarioRoutes.route("/update/:id").put(function(req, res) {
 
 //deactivate employee
 funcionarioRoutes.route("/deactivate/:id").put(function(req, res) {
-  Funcionario.findById(req.params.id, function(err, funcionario) {
-    if (!funcionario) return next(new Error("Could not load Document"));
-    else {
-      funcionario.activo = req.body.activo;
+  Funcionario.update({_id: req.params.id}, {$set: {activo: false}}, function(err, funcionario){
+    if(err) return res.status(400).send;
 
-      funcionario
-        .save()
-        .then(funcionario => {
-          res.json("Update complete");
-        })
-        .catch(err => {
-          res.status(400).send("unable to update the database");
-        });
-    }
-  });
+    res.status(200).send("Updated susscesfully");
+  })
+  
 });
 
 funcionarioRoutes.route("/update-vacation/:id").put(function(req, res) {

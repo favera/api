@@ -29,6 +29,27 @@ eventoRoutes.route("/add").post(function(req, res) {
     });
 });
 
+//retorna los feriados del anho
+eventoRoutes.route("/feriados").get(function(req, res) {
+  console.log("Entro en feriados");
+  // console.log(req);
+  var inicio, fin;
+  if (req.query.inicio && req.query.fin) {
+    inicio = new Date(req.query.inicio);
+    fin = new Date(req.query.fin);
+  }
+  Evento.find({
+    fechaFeriado: {
+      $gte: new Date(req.query.inicio),
+      $lte: new Date(req.query.fin)
+    }
+  }).then((err, feriados) => {
+    console.log(feriados);
+    if (err) res.status(400).send("Unable to find feriados");
+    res.status(200).send(feriados);
+  });
+});
+
 //retorna los feriados y vacaciones del mes actual
 eventoRoutes.route("/full-list").get(function(req, res) {
   var inicio, fin;

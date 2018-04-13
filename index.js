@@ -31,12 +31,12 @@ var Usuario = require("./modules/usuario/usuario");
 
 // proxy({target: 'http://chiprx.itaipu:8080', changeOrigin: true})
 
-app.use("/sucursales", test);
-app.use("/funcionarios", funcionario);
-app.use("/eventos", evento);
-app.use("/asistencias", asistencia);
-app.use("/adelantos", adelanto);
-app.use("/prestamos", prestamo);
+app.use("/sucursales", auth, test);
+app.use("/funcionarios", auth, funcionario);
+app.use("/eventos", auth, evento);
+app.use("/asistencias", auth, asistencia);
+app.use("/adelantos", auth, adelanto);
+app.use("/prestamos", auth, prestamo);
 app.use("/users", usuarios);
 
 app.post("/users/login", (req, res)=>{
