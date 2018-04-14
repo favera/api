@@ -30,7 +30,7 @@ funcionarioRoutes.route("/full-list").get(function(req, res) {
 funcionarioRoutes.route("/").get(function(req, res) {
   console.log(req.search);
   var query = { activo: true };
-  if (req.search !== null) {
+  if (req.search) {
     query = {
       activo: true,
       nombre: { $regex: req.query.search, $options: "i" }

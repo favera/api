@@ -38,16 +38,22 @@ eventoRoutes.route("/feriados").get(function(req, res) {
     inicio = new Date(req.query.inicio);
     fin = new Date(req.query.fin);
   }
+  console.log(req.query.inicio, req.query.fin)
   Evento.find({
-    fechaFeriado: {
-      $gte: new Date(req.query.inicio),
-      $lte: new Date(req.query.fin)
+    fechaFeriado: { $gte: inicio, $lte: fin }
+  }).exec(function(err, eventos) {
+    if (err) {
+      console.log(err);
+      res.status(400).send("Unable to find feriados");
+    } else {
+      res.json(eventos);
     }
-  }).then((err, feriados) => {
-    console.log(feriados);
-    if (err) res.status(400).send("Unable to find feriados");
-    res.status(200).send(feriados);
   });
+  // Evento.find().then((err, feriados) => {
+  //   console.log(feriados);
+  //   if (err) res.status(400).send("Unable to find feriados");
+  //   res.status(200).send(feriados);
+  // });
 });
 
 //retorna los feriados y vacaciones del mes actual
