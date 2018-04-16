@@ -28,9 +28,9 @@ funcionarioRoutes.route("/full-list").get(function(req, res) {
 
 // Defined get data(index or listing) route
 funcionarioRoutes.route("/").get(function(req, res) {
-  console.log(req.search);
+  console.log(req.query.search);
   var query = { activo: true };
-  if (req.search) {
+  if (req.query.search) {
     query = {
       activo: true,
       nombre: { $regex: req.query.search, $options: "i" }
@@ -114,12 +114,15 @@ funcionarioRoutes.route("/update/:id").put(function(req, res) {
 
 //deactivate employee
 funcionarioRoutes.route("/deactivate/:id").put(function(req, res) {
-  Funcionario.update({_id: req.params.id}, {$set: {activo: false}}, function(err, funcionario){
-    if(err) return res.status(400).send;
+  Funcionario.update(
+    { _id: req.params.id },
+    { $set: { activo: false } },
+    function(err, funcionario) {
+      if (err) return res.status(400).send;
 
-    res.status(200).send("Updated susscesfully");
-  })
-  
+      res.status(200).send("Updated susscesfully");
+    }
+  );
 });
 
 funcionarioRoutes.route("/update-vacation/:id").put(function(req, res) {

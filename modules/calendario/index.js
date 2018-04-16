@@ -8,14 +8,14 @@ var Evento = require("./evento");
 
 // Defined store route
 eventoRoutes.route("/add").post(function(req, res) {
-  if (req.body.tipoEvento === "vacaciones") {
-    req.body.fechaInicio = new Date(req.body.fechaInicio);
-    req.body.fechaFin = new Date(req.body.fechaFin);
-  }
-  if (req.body.tipoEvento === "feriado") {
-    console.log("entro en feriado");
-    req.body.fechaFeriado = new Date(req.body.fechaFeriado);
-  }
+  // if (req.body.tipoEvento === "vacaciones") {
+  //   req.body.fechaInicio = new Date(req.body.fechaInicio);
+  //   req.body.fechaFin = new Date(req.body.fechaFin);
+  // }
+  // if (req.body.tipoEvento === "feriado") {
+  //   console.log("entro en feriado");
+  //   req.body.fechaFeriado = new Date(req.body.fechaFeriado);
+  // }
   var evento = new Evento(req.body);
   evento
     .save()
@@ -38,7 +38,7 @@ eventoRoutes.route("/feriados").get(function(req, res) {
     inicio = new Date(req.query.inicio);
     fin = new Date(req.query.fin);
   }
-  console.log(req.query.inicio, req.query.fin)
+  console.log(req.query.inicio, req.query.fin);
   Evento.find({
     fechaFeriado: { $gte: inicio, $lte: fin }
   }).exec(function(err, eventos) {
