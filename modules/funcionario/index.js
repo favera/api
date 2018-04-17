@@ -28,9 +28,9 @@ funcionarioRoutes.route("/full-list").get(function(req, res) {
 
 // Defined get data(index or listing) route
 funcionarioRoutes.route("/").get(function(req, res) {
-  console.log(req.query.search);
+  console.log("ke ta pasando", typeof req.query.search);
   var query = { activo: true };
-  if (req.query.search) {
+  if (req.query.search && req.query.search !== "null") {
     query = {
       activo: true,
       nombre: { $regex: req.query.search, $options: "i" }
