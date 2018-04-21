@@ -62,19 +62,38 @@ sucursalRoutes.route("/update/:id").put(function(req, res) {
 });
 
 // // Defined delete | remove | destroy route
-sucursalRoutes.route("/delete/:id").get(function(req, res) {
-  var sucursales = []
-  // Funcionario.distinct("sucursal", function(err, response){
-  //   console.log(response);
-  // })
-  Sucursal.find({"_id":{$nin : Funcionario.distinct("sucursal")}}, function(err, sucursalesEliminar){
-    //sucursales = sucursalesEliminar;
-    console.log(err, sucursalesEliminar);
-  });
-  // Sucursal.findByIdAndRemove({ _id: req.cd params.id }, function(err, sucursal) {
-  //   if (err) res.json(err);
-  //   else res.json("Successfully removed");
-  // });
-});
+sucursalRoutes.route("/delete/:id").delete(function(req, res) {
+  var sucursales = [];
+  Funcionario.distinct("sucursal", function(err, response) {
+    console.log(response);
+    sucursales = response;
 
+    allowDelete = sucursales.findIndex(sucursal => {
+      //probar en casa porque parece que da problema.. en la comparacion
+      console.log(typeof sucursal, typeof req.params.id);
+      return sucursal === req.params.id;
+    });
+    console.log("Resultado", allowDelete);
+
+    if (allowDelete === -1) {
+      Sucursal.findByIdAndRemove({ _id: req.params.id }, function(
+        err,
+        sucursal
+      ) {
+        if (err) res.json(err);
+        else res.status(200).send("Successfully removed");
+      });
+    } else {
+      res
+        .status(403)
+        .send(
+          "No es posible Eliminar el registro ya que existen empleados en esta sucursal"
+        );
+    }
+  });
+});
+// Sucursal.find({"_id":{$nin : Funcionario.distinct("sucursal")}}, function(err, sucursalesEliminar){
+//   sucursales = sucursalesEliminar;
+//   console.log(err, sucursalesEliminar);
+// });
 module.exports = sucursalRoutes;

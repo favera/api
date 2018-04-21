@@ -9,7 +9,6 @@ var Asistencia = require("./asistencia");
 
 // Defined store route
 asistenciaRoutes.route("/add").post(function(req, res) {
-
   var asistencia = new Asistencia(req.body);
 
   asistencia
@@ -63,8 +62,6 @@ asistenciaRoutes.route("/test-data").post(function(req, res) {
       console.log(element);
       asistencias.push(element);
     }
-
-    
   });
 
   console.log(JSON.stringify(asistencias));
@@ -91,12 +88,13 @@ asistenciaRoutes.route("/full-list").get(function(req, res) {
     console.log(inicio, fin);
   }
 
-  if(req.query.fechaPlanilla){
+  if (req.query.fechaPlanilla) {
     inicio = fin = new Date(req.query.fechaPlanilla);
     console.log(inicio, fin);
   }
 
-  Asistencia.find({ fecha: { $gte: inicio, $lte: fin } }).populate('funcionario')
+  Asistencia.find({ fecha: { $gte: inicio, $lte: fin } })
+    .populate("funcionario")
     .then(result => {
       res.json(result);
     })
@@ -226,7 +224,7 @@ asistenciaRoutes.route("/query-data").get(function(req, res) {
   }
 
   var options = {
-    populate: { path: "funcionario"},
+    populate: { path: "funcionario" },
     lean: true,
     page: parseInt(req.query.page),
     limit: parseInt(req.query.limit)
@@ -343,6 +341,20 @@ asistenciaRoutes.route("/delete/:id").delete(function(req, res) {
     if (err) res.json(err);
     else res.json("Successfully removed");
   });
+});
+
+asistenciaRoutes.route("/test-pop").get(function(req, res) {
+  var options = {
+    page: 1,
+    limit: 10
+  };
+  Asistencia.testPop(req.query.search)
+    .paginate({}, options)
+    .then(result => {
+      console.log("paginacion", result);
+      res.json(result);
+    })
+    .catch(e => console.log(e));
 });
 
 module.exports = asistenciaRoutes;

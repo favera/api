@@ -8,14 +8,14 @@ var Evento = require("./evento");
 
 // Defined store route
 eventoRoutes.route("/add").post(function(req, res) {
-  if (req.body.tipoEvento === "vacaciones") {
-    req.body.fechaInicio = new Date(req.body.fechaInicio);
-    req.body.fechaFin = new Date(req.body.fechaFin);
-  }
-  if (req.body.tipoEvento === "feriado") {
-    console.log("entro en feriado");
-    req.body.fechaFeriado = new Date(req.body.fechaFeriado);
-  }
+  // if (req.body.tipoEvento === "vacaciones") {
+  //   req.body.fechaInicio = new Date(req.body.fechaInicio);
+  //   req.body.fechaFin = new Date(req.body.fechaFin);
+  // }
+  // if (req.body.tipoEvento === "feriado") {
+  //   console.log("entro en feriado");
+  //   req.body.fechaFeriado = new Date(req.body.fechaFeriado);
+  // }
   var evento = new Evento(req.body);
   evento
     .save()
@@ -27,6 +27,33 @@ eventoRoutes.route("/add").post(function(req, res) {
     .catch(err => {
       res.status(400).send("unable to save to database");
     });
+});
+
+//retorna los feriados del anho
+eventoRoutes.route("/feriados").get(function(req, res) {
+  console.log("Entro en feriados");
+  // console.log(req);
+  var inicio, fin;
+  if (req.query.inicio && req.query.fin) {
+    inicio = new Date(req.query.inicio);
+    fin = new Date(req.query.fin);
+  }
+  console.log(req.query.inicio, req.query.fin);
+  Evento.find({
+    fechaFeriado: { $gte: inicio, $lte: fin }
+  }).exec(function(err, eventos) {
+    if (err) {
+      console.log(err);
+      res.status(400).send("Unable to find feriados");
+    } else {
+      res.json(eventos);
+    }
+  });
+  // Evento.find().then((err, feriados) => {
+  //   console.log(feriados);
+  //   if (err) res.status(400).send("Unable to find feriados");
+  //   res.status(200).send(feriados);
+  // });
 });
 
 //retorna los feriados y vacaciones del mes actual

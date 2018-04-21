@@ -55,7 +55,27 @@ var Asistencia = new Schema(
     collection: "asistencias"
   }
 );
-Asistencia.index({fecha: 1, funcionario: 1}, {unique: true})
+Asistencia.index({ fecha: 1, funcionario: 1 }, { unique: true });
 Asistencia.plugin(mongoosePaginate);
+
+Asistencia.statics.testPop = function(param) {
+  var asistencia = this;
+  var result;
+
+  return asistencia
+    .find({})
+    .populate({
+      path: "funcionario",
+      match: { nombre: { $regex: param, $options: "i" } }
+    })
+    .exec(function(err, funcionario) {
+      if (err) console.log(err);
+
+      result = funcionario.filter(function(asistencia) {
+        return asistencia.funcionario !== null;
+      });
+      console.log(result);
+    });
+};
 
 module.exports = mongoose.model("Asistencia", Asistencia);
