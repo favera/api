@@ -166,7 +166,7 @@ eventoRoutes.route("/update/:id").put(function(req, res) {
       evento
         .save()
         .then(evento => {
-          res.json("Update complete");
+          res.json(evento);
         })
         .catch(err => {
           res.status(400).send("unable to update the database");

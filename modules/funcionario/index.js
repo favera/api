@@ -5,6 +5,7 @@ var funcionarioRoutes = express.Router();
 
 // Require Item model in our routes module
 var Funcionario = require("./funcionario");
+var Evento = require("./../calendario/evento");
 
 // Defined store route
 funcionarioRoutes.route("/add").post(function(req, res) {
@@ -126,20 +127,33 @@ funcionarioRoutes.route("/deactivate/:id").put(function(req, res) {
 });
 
 funcionarioRoutes.route("/update-vacation/:id").put(function(req, res) {
-  Funcionario.findById(req.params.id, function(err, funcionario) {
-    if (!funcionario) return next(new Error("Could not load Document"));
-    else {
-      funcionario.vacaciones = req.body.vacaciones;
+  console.log("ID VACACIONES", req.body.vacaciones);
+  var query = { vacaciones: req.body.vacaciones };
+  var options = {
+    upsert: false,
+    multi: true
+  };
+  Funcionario.update(query, { vacaciones: "false" }, options, function(
+    err,
+    response
+  ) {
+    if (err) console.log(err);
+    console.log("Respuesta", response);
+    Funcionario.findById(req.params.id, function(err, funcionario) {
+      if (!funcionario) return next(new Error("Could not load Document"));
+      else {
+        funcionario.vacaciones = req.body.vacaciones;
 
-      funcionario
-        .save()
-        .then(funcionario => {
-          res.json("Update complete");
-        })
-        .catch(err => {
-          res.status(400).send("unable to update the database");
-        });
-    }
+        funcionario
+          .save()
+          .then(funcionario => {
+            res.json("Update complete");
+          })
+          .catch(err => {
+            res.status(400).send("unable to update the database");
+          });
+      }
+    });
   });
 });
 

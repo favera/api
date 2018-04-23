@@ -22,7 +22,7 @@ sucursalRoutes.route("/add").post(function(req, res) {
 
 // Defined get data(index or listing) route
 sucursalRoutes.route("/").get(function(req, res) {
-  Sucursal.find(function(err, sucursales) {
+  Sucursal.find({ activo: true }, function(err, sucursales) {
     if (err) {
       console.log(err);
     } else {
@@ -71,7 +71,7 @@ sucursalRoutes.route("/delete/:id").delete(function(req, res) {
     allowDelete = sucursales.findIndex(sucursal => {
       //probar en casa porque parece que da problema.. en la comparacion
       console.log(typeof sucursal, typeof req.params.id);
-      return sucursal === req.params.id;
+      return sucursal.toHexString() === req.params.id;
     });
     console.log("Resultado", allowDelete);
 
@@ -84,11 +84,30 @@ sucursalRoutes.route("/delete/:id").delete(function(req, res) {
         else res.status(200).send("Successfully removed");
       });
     } else {
-      res
-        .status(403)
-        .send(
-          "No es posible Eliminar el registro ya que existen empleados en esta sucursal"
-        );
+      Funcionario.find({ sucursal: req.params.id, activo: true }, function(
+        err,
+        funcionarios
+      ) {
+        if (err) console.log(err);
+
+        if (funcionarios.length > 0) {
+          res
+            .status(403)
+            .send(
+              "No es posible Eliminar el registro ya que existen empleados en esta sucursal"
+            );
+        } else {
+          Sucursal.update(
+            { _id: req.params.id },
+            { $set: { activo: false } },
+            function(err, sucursal) {
+              if (err) return res.status(400).send;
+
+              res.status(200).send("Updated susscesfully");
+            }
+          );
+        }
+      });
     }
   });
 });

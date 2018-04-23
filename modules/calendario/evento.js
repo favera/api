@@ -12,6 +12,9 @@ var Evento = new Schema(
     fechaInicio: { type: Date },
     fechaFin: { type: Date },
     fechaFeriado: { type: Date },
+    motivoFeriado: {
+      type: String
+    },
     funcionario: {
       type: Schema.Types.ObjectId,
       ref: "Funcionario"

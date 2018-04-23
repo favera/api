@@ -18,6 +18,10 @@ var Sucursal = new Schema(
     },
     telefono: {
       type: String
+    },
+    activo: {
+      type: Boolean,
+      default: true
     }
   },
   {
