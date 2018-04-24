@@ -12,6 +12,9 @@ var Adelanto = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Funcionario"
     },
+    nombreFuncionario: {
+      type: String
+    },
     tipoAdelanto: {
       type: String,
       required: true

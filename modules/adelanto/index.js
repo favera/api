@@ -32,14 +32,58 @@ adelantoRoutes.route("/full-list").get(function(req, res) {
 // Defined get data(index or listing) route
 adelantoRoutes.route("/").get(function(req, res) {
   //console.log(req);
+  var inicio, fin;
   var query = {};
-  if (req.query.search) {
-    query = { nombre: { $regex: req.query.search, $options: "i" } };
+  console.log(req.query.busqueda, req.query.inicio, req.query.fin);
+  if (req.query.inicio) {
+    console.log("fecha Inicio", req.query.inicio);
+    inicio = new Date(req.query.inicio);
+  }
+
+  if (req.query.fin) {
+    console.log("fecha Fin", req.query.fin);
+    fin = new Date(req.query.fin);
+  }
+
+  if (req.query.busqueda === "null") {
+    req.query.busqueda = null;
+  }
+
+  //si todos los parametros son enviados
+  if (req.query.busqueda && inicio && fin) {
+    query = {
+      fecha: { $gte: inicio, $lte: fin },
+      nombreFuncionario: { $regex: req.query.busqueda, $options: "i" }
+    };
+  }
+
+  //si campo busqueda es nulo, pero fecha inicio y fin no es nulo
+  if (!req.query.busqueda && inicio && fin) {
+    console.log("query utilizada", inicio, fin);
+    query = { fecha: { $gte: inicio, $lte: fin } };
+  }
+
+  //busqueda es nulo, y fecha fin tambien, se le asigna la fecha de hoy
+  if (!req.query.busqueda && inicio && !fin) {
+    query = { fecha: { $gte: inicio, $lte: new Date() } };
+  }
+
+  if (req.query.busqueda && inicio && !fin) {
+    query = {
+      fecha: { $gte: inicio, $lte: new Date() },
+      nombreFuncionario: { $regex: req.query.busqueda, $options: "i" }
+    };
+  }
+
+  if (req.query.busqueda && !inicio && !fin) {
+    query = {
+      nombreFuncionario: { $regex: req.query.busqueda, $options: "i" }
+    };
   }
   console.log("Resultado query", query);
   var options = {
     sort: { nombre: 1 },
-    populate: { path: "funcionario"},
+    // populate: { path: "funcionario"},
     lean: true,
     page: parseInt(req.query.page),
     limit: parseInt(req.query.limit)
@@ -89,6 +133,7 @@ adelantoRoutes.route("/update/:id").put(function(req, res) {
       adelanto.fecha = new Date(req.body.fecha);
       adelanto.tipoAdelanto = req.body.tipoAdelanto;
       adelanto.funcionario = req.body.funcionario;
+      adelanto.nombreFuncionario = req.body.nombreFuncionario;
       adelanto.monto = req.body.monto;
       adelanto.moneda = req.body.moneda;
 
@@ -123,7 +168,7 @@ adelantoRoutes.route("/update/:id").put(function(req, res) {
 //   });
 // });
 
- // Defined delete | remove | destroy route
+// Defined delete | remove | destroy route
 adelantoRoutes.route("/delete/:id").delete(function(req, res) {
   Adelanto.findByIdAndRemove({ _id: req.params.id }, function(err, item) {
     if (err) res.json(err);
