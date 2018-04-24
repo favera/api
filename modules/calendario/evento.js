@@ -18,6 +18,9 @@ var Evento = new Schema(
     funcionario: {
       type: Schema.Types.ObjectId,
       ref: "Funcionario"
+    },
+    nombreFuncionario: {
+      type: String
     }
   },
   {

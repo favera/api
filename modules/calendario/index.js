@@ -96,13 +96,23 @@ eventoRoutes.route("/full-list").get(function(req, res) {
 eventoRoutes.route("/").get(function(req, res) {
   //console.log(req);
   var query = {};
-  if (req.query.search) {
-    query = { nombre: { $regex: req.query.search, $options: "i" } };
+  if (req.query.tipoEvento) {
+    query = { tipoEvento: req.query.tipoEvento };
+  }
+
+  if (req.query.busqueda !== "null") {
+    query = {
+      tipoEvento: req.query.tipoEvento,
+      $or: [
+        { nombreFuncionario: { $regex: req.query.busqueda, $options: "i" } },
+        { motivoFeriado: { $regex: req.query.busqueda, $options } }
+      ]
+    };
   }
   console.log("Resultado query", query);
   var options = {
     sort: { nombre: 1 },
-    populate: { path: "funcionario" },
+    // populate: { path: "funcionario" },
     lean: true,
     page: parseInt(req.query.page),
     limit: parseInt(req.query.limit)
@@ -161,7 +171,9 @@ eventoRoutes.route("/update/:id").put(function(req, res) {
       evento.fechaInicio = req.body.fechaInicio;
       evento.fechaFin = req.body.fechaFin;
       evento.fechaFeriado = req.body.fechaFeriado;
+      evento.motivoFeriado = req.body.motivoFeriado;
       evento.funcionario = req.body.funcionario;
+      evento.nombreFuncionario = req.body.nombreFuncionario;
 
       evento
         .save()

@@ -140,19 +140,28 @@ funcionarioRoutes.route("/update-vacation/:id").put(function(req, res) {
     if (err) console.log(err);
     console.log("Respuesta", response);
     Funcionario.findById(req.params.id, function(err, funcionario) {
-      if (!funcionario) return next(new Error("Could not load Document"));
-      else {
-        funcionario.vacaciones = req.body.vacaciones;
+      console.log("Id params", req.params.id);
+      console.log("Funcionario?", funcionario);
+      if (!funcionario) return res.send(err);
+      funcionario.set({ vacaciones: req.body.vacaciones });
+      funcionario.save(function(err, updatedFuncionario) {
+        if (err) return res.send(err);
+        res.send(updatedFuncionario);
+      });
 
-        funcionario
-          .save()
-          .then(funcionario => {
-            res.json("Update complete");
-          })
-          .catch(err => {
-            res.status(400).send("unable to update the database");
-          });
-      }
+      // else {
+      //   console.log("Funcionario", funcionario);
+      //   console.log("Id vacaciones", typeof req.body.vacaciones);
+      //   funcionario.vacaciones = req.body.vacaciones;
+
+      //   Funcionario.save()
+      //     .then(funcionario => {
+      //       res.json("Update complete");
+      //     })
+      //     .catch(err => {
+      //       res.status(400).send("unable to update the database");
+      //     });
+      // }
     });
   });
 });

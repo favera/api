@@ -35,12 +35,12 @@ adelantoRoutes.route("/").get(function(req, res) {
   var inicio, fin;
   var query = {};
   console.log(req.query.busqueda, req.query.inicio, req.query.fin);
-  if (req.query.inicio) {
+  if (req.query.inicio !== "null") {
     console.log("fecha Inicio", req.query.inicio);
     inicio = new Date(req.query.inicio);
   }
 
-  if (req.query.fin) {
+  if (req.query.fin !== "null") {
     console.log("fecha Fin", req.query.fin);
     fin = new Date(req.query.fin);
   }
