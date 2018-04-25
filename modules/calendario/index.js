@@ -105,7 +105,7 @@ eventoRoutes.route("/").get(function(req, res) {
       tipoEvento: req.query.tipoEvento,
       $or: [
         { nombreFuncionario: { $regex: req.query.busqueda, $options: "i" } },
-        { motivoFeriado: { $regex: req.query.busqueda, $options } }
+        { motivoFeriado: { $regex: req.query.busqueda, $options: "i" } }
       ]
     };
   }
