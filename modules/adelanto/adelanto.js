@@ -26,7 +26,13 @@ var Adelanto = new Schema(
     },
     monto: {
       type: String,
-      required: true
+      required: true,
+      validate: {
+        validator: function(value) {
+          return value > 0;
+        },
+        message: "Valor debe ser mayor a 0"
+      }
     }
   },
   {
