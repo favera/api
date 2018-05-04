@@ -29,7 +29,7 @@ var Adelanto = new Schema(
       required: true,
       validate: {
         validator: function(value) {
-          return value > 0;
+          return value.split(".").join("") > 0;
         },
         message: "Valor debe ser mayor a 0"
       }
