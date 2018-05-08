@@ -10,7 +10,8 @@ var Prestamo = new Schema(
     },
     funcionario: {
       type: Schema.Types.ObjectId,
-      ref: "Funcionario"
+      ref: "Funcionario",
+      required: true
     },
     nombreFuncionario: {
       type: String
