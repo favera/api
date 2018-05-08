@@ -29,7 +29,8 @@ var Prestamo = new Schema(
       required: true
     },
     nroCuotas: {
-      type: Number
+      type: Number,
+      required: true
     },
     cuotas: [
       {
