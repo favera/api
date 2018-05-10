@@ -57,8 +57,7 @@ var Funcionario = new Schema(
       required: true
     },
     vacaciones: {
-      type: String,
-      default: "false"
+      type: [String]
     }
   },
   {

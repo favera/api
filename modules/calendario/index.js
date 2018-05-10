@@ -3,6 +3,8 @@
 var express = require("express");
 var eventoRoutes = express.Router();
 
+var ObjectId = require("mongoose").Types.ObjectId;
+
 // Require Item model in our routes module
 var Evento = require("./evento");
 
@@ -27,6 +29,16 @@ eventoRoutes.route("/add").post(function(req, res) {
     .catch(err => {
       res.status(400).send("unable to save to database");
     });
+});
+//retorna las vacaciones del funcionario que se pasa
+eventoRoutes.route("/vacaciones/:id").get(function(req, res) {
+  Evento.find({ funcionario: new ObjectId(req.params.id), activo: true }).exec(
+    function(err, vacaciones) {
+      if (err) res.status(400).send(err);
+      console.log(vacaciones);
+      res.status(200).send(vacaciones);
+    }
+  );
 });
 
 //retorna los feriados del anho

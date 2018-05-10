@@ -127,44 +127,67 @@ funcionarioRoutes.route("/deactivate/:id").put(function(req, res) {
 });
 
 funcionarioRoutes.route("/update-vacation/:id").put(function(req, res) {
-  console.log("ID VACACIONES", req.body.vacaciones);
-  var query = { vacaciones: req.body.vacaciones };
-  var options = {
-    upsert: false,
-    multi: true
-  };
-  Funcionario.update(query, { vacaciones: "false" }, options, function(
-    err,
-    response
-  ) {
-    if (err) console.log(err);
-    console.log("Respuesta", response);
-    Funcionario.findById(req.params.id, function(err, funcionario) {
-      console.log("Id params", req.params.id);
-      console.log("Funcionario?", funcionario);
-      if (!funcionario) return res.send(err);
-      funcionario.set({ vacaciones: req.body.vacaciones });
-      funcionario.save(function(err, updatedFuncionario) {
-        if (err) return res.send(err);
-        res.send(updatedFuncionario);
+  Funcionario.findById(req.params.id, function(err, funcionario) {
+    if (err || !funcionario) res.status(400).send(err);
+    if (!req.body.activo) {
+      var index = funcionario.vacaciones.indexOf(req.body.vacaciones);
+      if (index > -1) {
+        funcionario.vacaciones.splice(index, 1);
+      }
+    } else {
+      funcionario.vacaciones.push(req.body.vacaciones);
+    }
+
+    funcionario
+      .save()
+      .then(funcionario => {
+        res.status(200).send("Update complete");
+      })
+      .catch(err => {
+        res.status(400).send(err);
       });
-
-      // else {
-      //   console.log("Funcionario", funcionario);
-      //   console.log("Id vacaciones", typeof req.body.vacaciones);
-      //   funcionario.vacaciones = req.body.vacaciones;
-
-      //   Funcionario.save()
-      //     .then(funcionario => {
-      //       res.json("Update complete");
-      //     })
-      //     .catch(err => {
-      //       res.status(400).send("unable to update the database");
-      //     });
-      // }
-    });
   });
 });
+
+// funcionarioRoutes.route("/update-vacation/:id").put(function(req, res) {
+//   console.log("ID VACACIONES", req.body.vacaciones);
+//   var query = { vacaciones: req.body.vacaciones };
+//   var options = {
+//     upsert: false,
+//     multi: true
+//   };
+//   Funcionario.update(query, { vacaciones: "false" }, options, function(
+//     err,
+//     response
+//   ) {
+//     if (err) console.log(err);
+//     console.log("Respuesta", response);
+//     Funcionario.findById(req.params.id, function(err, funcionario) {
+//       console.log("Id params", req.params.id);
+//       console.log("Funcionario?", funcionario);
+//       if (!funcionario) return res.send(err);
+//       funcionario.set({ vacaciones: req.body.vacaciones });
+//       funcionario.save(function(err, updatedFuncionario) {
+//         if (err) return res.send(err);
+//         res.send(updatedFuncionario);
+//       });
+
+//       // else {
+//       //   console.log("Funcionario", funcionario);
+//       //   console.log("Id vacaciones", typeof req.body.vacaciones);
+//       //   funcionario.vacaciones = req.body.vacaciones;
+
+//       //   Funcionario.save()
+//       //     .then(funcionario => {
+//       //       res.json("Update complete");
+//       //     })
+//       //     .catch(err => {
+//       //       res.status(400).send("unable to update the database");
+//       //     });
+//       // }
+//     });
+//   });
+// });
 
 // // Defined delete | remove | destroy route
 // itemRoutes.route("/delete/:id").get(function(req, res) {

@@ -21,6 +21,11 @@ var Evento = new Schema(
     },
     nombreFuncionario: {
       type: String
+    },
+    activo: {
+      type: Boolean,
+      required: true,
+      default: true
     }
   },
   {
