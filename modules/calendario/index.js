@@ -27,7 +27,8 @@ eventoRoutes.route("/add").post(function(req, res) {
       res.json(item);
     })
     .catch(err => {
-      res.status(400).send("unable to save to database");
+      console.log(err.errors);
+      res.status(400).send(err);
     });
 });
 //retorna las vacaciones del funcionario que se pasa

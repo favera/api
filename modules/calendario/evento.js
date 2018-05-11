@@ -9,15 +9,17 @@ var Evento = new Schema(
       type: String,
       required: true
     },
-    fechaInicio: { type: Date },
-    fechaFin: { type: Date },
-    fechaFeriado: { type: Date },
+    fechaInicio: { type: Date, required: true },
+    fechaFin: { type: Date, required: true },
+    fechaFeriado: { type: Date, index: true, unique: true },
     motivoFeriado: {
-      type: String
+      type: String,
+      required: true
     },
     funcionario: {
       type: Schema.Types.ObjectId,
-      ref: "Funcionario"
+      ref: "Funcionario",
+      required: true
     },
     nombreFuncionario: {
       type: String
