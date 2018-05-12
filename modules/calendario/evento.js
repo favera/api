@@ -9,17 +9,63 @@ var Evento = new Schema(
       type: String,
       required: true
     },
-    fechaInicio: { type: Date, required: true },
-    fechaFin: { type: Date, required: true },
-    fechaFeriado: { type: Date, index: true, unique: true },
+    fechaInicio: {
+      type: Date,
+      validate: {
+        validator: function(valor){
+          if(!valor && this.tipoEvento === "vacaciones"){
+            return false;
+          }
+        },
+        message: "El campo es requerido"
+      }
+    },
+    fechaFin: {
+      type: Date,
+      validate: {
+        validator: function(valor){
+          if(!valor && this.tipoEvento === "vacaciones"){
+            return false;
+          }
+        },
+        message: "El campo es requerido"
+      }
+    },
+    fechaFeriado: {
+      type: Date,
+      index: true,
+      unique: true,
+      validate: {
+        validator: function(valor){
+          if(!valor && this.tipoEvento === "feriado"){
+            return false;
+          }
+        },
+        message: "El campo es requerido"
+      }
+    },
     motivoFeriado: {
       type: String,
-      required: true
+      validate: {
+        validator: function(valor){
+          if(!valor && this.tipoEvento === "feriado"){
+            return false;
+          }
+        },
+        message: "El campo es requerido"
+      }
     },
     funcionario: {
       type: Schema.Types.ObjectId,
       ref: "Funcionario",
-      required: true
+      validate: {
+        validator: function(valor){
+          if(!valor && this.tipoEvento === "vacaciones"){
+            return false;
+          }
+        },
+        message: "El campo es requerido"
+      }
     },
     nombreFuncionario: {
       type: String
