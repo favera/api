@@ -4,6 +4,7 @@ var express = require("express");
 var eventoRoutes = express.Router();
 
 var ObjectId = require("mongoose").Types.ObjectId;
+var moment = require("moment");
 
 // Require Item model in our routes module
 var Evento = require("./evento");
@@ -18,18 +19,103 @@ eventoRoutes.route("/add").post(function(req, res) {
   //   console.log("entro en feriado");
   //   req.body.fechaFeriado = new Date(req.body.fechaFeriado);
   // }
-  var evento = new Evento(req.body);
-  evento
-    .save()
-    .then(item => {
-      console.log(item);
-      // res.status(200).json({ item: "Item added successfully" });
-      res.json(item);
-    })
-    .catch(err => {
-      console.log(err.errors);
-      res.status(400).send(err);
+  var diffVacaciones = moment(req.body.fechaFin).diff(
+    req.body.fechaInicio,
+    "days"
+  );
+  var validacionFecha;
+  console.log("Primera Diferencia", diffVacaciones);
+  Evento.find({
+    funcionario: ObjectId(req.body.funcionario),
+    activo: true
+  }).exec(function(err, funcionarioEventos) {
+    if (err) res.status(400).send(err);
+    console.log("Funcionario", funcionarioEventos);
+    funcionarioEventos.forEach(fun => {
+      console.log("Objeto?", fun);
+      var diffRetorno = moment(fun.fechaFin).diff(fun.fechaInicio, "days");
+      console.log("Diferencia Retorno", diffRetorno);
+      if (diffRetorno > diffVacaciones) {
+        var dias = diffRetorno - diffVacaciones;
+        console.log("Dentro del primer if", fun.fechaInicio, dias);
+        var fecha = moment(fun.fechaInicio).add(dias, "days");
+        console.log("Suma", fecha);
+        if (
+          moment(fecha).isBetween(
+            req.body.fechaFin,
+            req.body.fechaFin,
+            null,
+            "[]"
+          )
+        ) {
+          console.log("Valido");
+          return (validacionFecha =
+            "Ya existe vacaciones dentro de ese periodo");
+          // return res
+          //   .status(400)
+          //   .send("Ya existe vacaciones dentro de ese periodo");
+        }
+      } else {
+        console.log(
+          "Datos",
+          req.body.fechaInicio,
+          req.body.fechaFin,
+          fun.fechaInicio,
+          fun.fechaFin
+        );
+        if (
+          moment(req.body.fechaInicio).isBetween(
+            fun.fechaInicio,
+            fun.fechaFin,
+            null,
+            "[]"
+          ) ||
+          moment(req.body.fechaFin).isBetween(
+            fun.fechaInicio,
+            fun.fechaFin,
+            null,
+            "[]"
+          )
+        ) {
+          return (validacionFecha =
+            "Ya existe vacaciones dentro de ese periodo");
+          // return res
+          //   .status(400)
+          //   .send("Ya existe vacaciones dentro de ese periodo");
+        } else {
+        }
+      }
     });
+
+    if (validacionFecha) {
+      res.status(400).send("Ya existe vacaciones dentro de ese periodo");
+    } else {
+      var evento = new Evento(req.body);
+      evento
+        .save()
+        .then(item => {
+          console.log(item);
+          // res.status(200).json({ item: "Item added successfully" });
+          res.json(item);
+        })
+        .catch(err => {
+          console.log(err.errors);
+          res.status(400).send(err);
+        });
+    }
+  });
+  // var evento = new Evento(req.body);
+  // evento
+  //   .save()
+  //   .then(item => {
+  //     console.log(item);
+  //     res.status(200).json({ item: "Item added successfully" });
+  //     res.json(item);
+  //   })
+  //   .catch(err => {
+  //     console.log(err.errors);
+  //     res.status(400).send(err);
+  //   });
 });
 //retorna las vacaciones del funcionario que se pasa
 eventoRoutes.route("/vacaciones/:id").get(function(req, res) {
@@ -104,6 +190,13 @@ eventoRoutes.route("/full-list").get(function(req, res) {
   //   }
   // });
 });
+
+eventoRoutes.route("/deactivate-vacation/:id").get(function(req, res){
+  Evento.update({_id: req.params.id}, {$set: {activo: false}}, function(err, evento){
+    if(err) res.status(400).send(err)
+    res.status(200).send("Updated sucessfully")
+  })
+})
 
 // Defined get data(index or listing) route
 eventoRoutes.route("/").get(function(req, res) {
