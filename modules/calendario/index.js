@@ -35,18 +35,13 @@ eventoRoutes.route("/add").post(function(req, res) {
       console.log("Objeto?", fun);
       var diffRetorno = moment(fun.fechaFin).diff(fun.fechaInicio, "days");
       console.log("Diferencia Retorno", diffRetorno);
-      if (diffRetorno > diffVacaciones) {
-        var dias = diffRetorno - diffVacaciones;
+      if (diffVacaciones > diffRetorno) {
+        var dias = diffVacaciones - diffRetorno;
         console.log("Dentro del primer if", fun.fechaInicio, dias);
-        var fecha = moment(fun.fechaInicio).add(dias, "days");
+        var fecha = moment(req.body.fechaInicio).add(dias, "days");
         console.log("Suma", fecha);
         if (
-          moment(fecha).isBetween(
-            req.body.fechaFin,
-            req.body.fechaFin,
-            null,
-            "[]"
-          )
+          moment(fecha).isBetween(fun.fechaInicio, fun.fechaFin, null, "[]")
         ) {
           console.log("Valido");
           return (validacionFecha =
@@ -82,7 +77,6 @@ eventoRoutes.route("/add").post(function(req, res) {
           // return res
           //   .status(400)
           //   .send("Ya existe vacaciones dentro de ese periodo");
-        } else {
         }
       }
     });
@@ -191,12 +185,15 @@ eventoRoutes.route("/full-list").get(function(req, res) {
   // });
 });
 
-eventoRoutes.route("/deactivate-vacation/:id").get(function(req, res){
-  Evento.update({_id: req.params.id}, {$set: {activo: false}}, function(err, evento){
-    if(err) res.status(400).send(err)
-    res.status(200).send("Updated sucessfully")
-  })
-})
+eventoRoutes.route("/deactivate-vacation/:id").get(function(req, res) {
+  Evento.update({ _id: req.params.id }, { $set: { activo: false } }, function(
+    err,
+    evento
+  ) {
+    if (err) res.status(400).send(err);
+    res.status(200).send("Updated sucessfully");
+  });
+});
 
 // Defined get data(index or listing) route
 eventoRoutes.route("/").get(function(req, res) {

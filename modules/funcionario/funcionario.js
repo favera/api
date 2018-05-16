@@ -6,7 +6,9 @@ var Funcionario = new Schema(
   {
     acnro: {
       type: String,
-      required: true
+      required: true,
+      index: true,
+      unique: true
     },
     activo: {
       type: Boolean,
@@ -50,7 +52,8 @@ var Funcionario = new Schema(
     },
     sucursal: {
       type: Schema.Types.ObjectId,
-      ref: "Sucursal"
+      ref: "Sucursal",
+      required: true
     },
     tipoHoraExtra: {
       type: String,
