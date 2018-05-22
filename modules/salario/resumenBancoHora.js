@@ -8,6 +8,11 @@ var ResumenBancoHora = new Schema(
       ref: "funcionario",
       required: true
     },
+    salario: {
+      type: Schema.Types.ObjectId,
+      ref: "Salario",
+      required: true
+    },
     movimientos: [
       {
         mov_id: {

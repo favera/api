@@ -14,7 +14,7 @@ prestamoRoutes.route("/add").post(function(req, res) {
     })
     .catch(err => {
       console.log(err);
-      res.status(400).send("unable to save to database");
+      res.status(400).send(err);
     });
 });
 

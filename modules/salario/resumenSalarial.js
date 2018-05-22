@@ -8,6 +8,11 @@ var ResumenSalarial = new Schema(
       ref: "Funcionario",
       required: true
     },
+    salario: {
+      type: Schema.Types.ObjectId,
+      ref: "Salario",
+      required: true
+    },
     movimientos: [
       {
         mov_id: {
