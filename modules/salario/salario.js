@@ -1,40 +1,45 @@
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
+var mongoosePaginate = require("mongoose-paginate");
 
 var Salario = new Schema(
   {
     month: {
-      type: String,
+      type: Date,
       required: true
     },
     year: {
-      type: String,
+      type: Date,
       required: true
     },
-    salarioDetail: [
+    status: {
+      type: String,
+      default: "Pendiente"
+    },
+    salaryDetail: [
       {
-        funcionario: {
+        employee: {
           type: Schema.Types.ObjectId,
           ref: "Funcionario"
           // required: true
         },
-        horasMes: {
+        monthHours: {
           type: String
           // required: true
         },
-        horasTrabajadas: {
+        workingHours: {
           type: String
           // required: true
         },
-        bancoHorasMes: {
+        hourBank: {
           type: String
           // required: true
         },
-        retrasos: {
+        delay: {
           type: String
           // required: true
         },
-        salarioBase: {
+        salary: {
           type: String
           // required: true
         },
@@ -42,23 +47,23 @@ var Salario = new Schema(
           type: String
           // required: true
         },
-        descuentos: {
+        discount: {
           type: String
           // required: true
         },
-        horasExtras: {
+        extraHour: {
           type: String
           // required: true
         },
-        adelantos: {
+        advanceSalary: {
           type: String
           // required: true
         },
-        prestamos: {
+        lending: {
           type: String
           // required: true
         },
-        salarioNeto: {
+        netSalary: {
           type: String
           // required: true
         }
@@ -70,4 +75,5 @@ var Salario = new Schema(
   }
 );
 
+Salario.plugin(mongoosePaginate);
 module.exports = mongoose.model("Salario", Salario);
