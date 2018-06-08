@@ -81,7 +81,7 @@ asistenciaRoutes.route("/test-data").post(function(req, res) {
 //return all asistencias
 asistenciaRoutes.route("/full-list").get(function(req, res) {
   var inicio, fin;
-  console.log(req.query.inicio);
+  console.log(req.query.inicio, req.query.fin);
   if (req.query.inicio && req.query.fin) {
     inicio = new Date(req.query.inicio);
     fin = new Date(req.query.fin);
@@ -93,7 +93,7 @@ asistenciaRoutes.route("/full-list").get(function(req, res) {
     console.log(inicio, fin);
   }
 
-  Asistencia.find({ fecha: { $gte: inicio, $lte: fin } })
+  Asistencia.find({ fecha: { $gte: req.query.inicio, $lte: req.query.fin } })
     .populate("funcionario")
     .then(result => {
       res.json(result);

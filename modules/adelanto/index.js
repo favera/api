@@ -29,6 +29,16 @@ adelantoRoutes.route("/full-list").get(function(req, res) {
   });
 });
 
+//return monthly advance
+adelantoRoutes.route("/monthly-advance").get(function(req, res) {
+  console.log(req.query.inicio, req.query.fin);
+  Adelanto.find({ fecha: { $gte: req.query.inicio, $lte: req.query.fin } })
+    .then(result => {
+      res.json(result);
+    })
+    .catch(e => console.log(e));
+});
+
 // Defined get data(index or listing) route
 adelantoRoutes.route("/").get(function(req, res) {
   //console.log(req);
