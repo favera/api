@@ -18,6 +18,17 @@ prestamoRoutes.route("/add").post(function(req, res) {
     });
 });
 
+//return loan of period dates
+prestamoRoutes.route("/loan-period").get(function(req, res) {
+  Prestamo.find({
+    "cuotas.vencimiento": { $gte: req.query.inicio, $lte: req.query.fin }
+  })
+    .then(result => {
+      res.json(result);
+    })
+    .catch(e => res.status(400).send(e));
+});
+
 //return all prestamos
 prestamoRoutes.route("/full-list").get(function(req, res) {
   Prestamo.find({})

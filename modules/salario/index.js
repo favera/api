@@ -2,8 +2,10 @@ var express = require("express");
 var salarioRoutes = express.Router();
 
 var Salario = require("./salario");
+var BancoHora = require("./bancoHora");
 var ResumenSalarial = require("./resumenSalarial");
 var ResumenBancoHora = require("./resumenBancoHora");
+var Asistencia = require("./../asistencia/asistencia");
 
 //### Periodo
 salarioRoutes.route("/add/period").post(function(req, res) {
@@ -52,6 +54,50 @@ salarioRoutes.route("/add/detail/:id").put(function(req, res) {
   });
 });
 
+//###Banco de Hora###
+
+salarioRoutes.route("/add/banco-hora").post(function(req, res) {
+  var bancoHora = new BancoHora(req.body);
+
+  bancoHora
+    .save()
+    .then(result => {
+      res.status(200).send("add sucessfully");
+    })
+    .catch(e => {
+      res.status(400).send(err);
+    });
+});
+
+salarioRoutes.route("/banco-hora/:id").get(function(req, res) {
+  BancoHora.find({ funcionario: req.params.id })
+    .then(response => {
+      res.status(200).send(response);
+    })
+    .catch(e => res.status(400).send(e));
+});
+
+//#### Obtener historial de marcaciones por funcionario
+salarioRoutes.route("/attendance-historic/:id").get(function(req, res) {
+  Asistencia.find({
+    $and: [
+      { funcionario: req.params.id },
+      {
+        $or: [{ horasFaltantes: { $ne: null } }, { horasExtras: { $ne: null } }]
+      },
+      { fecha: { $gte: req.query.inicio, $lte: req.query.fin } }
+    ]
+  })
+    .populate("funcionario")
+    .then(response => {
+      res.status(200).send(response);
+    })
+    .catch(e => {
+      res.status(400).send(e);
+    });
+});
+
+//### Resumen Salarial ### /
 salarioRoutes.route("/add/resumen-salarial").post(function(req, res) {
   var resumenSalarial = new ResumenSalarial(req.body);
 

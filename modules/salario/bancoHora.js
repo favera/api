@@ -3,13 +3,21 @@ var Schema = mongoose.Schema;
 
 var BancoHoras = new Schema(
   {
-    funcionarioId: {
+    funcionario: {
       type: Schema.Types.ObjectId,
       ref: "Funcionario",
       required: true
     },
-    bancoHoras: {
-      type: String,
+    hours: {
+      type: Number,
+      required: true
+    },
+    totalMinutes: {
+      type: Number,
+      required: true
+    },
+    minutes: {
+      type: Number,
       required: true
     }
   },

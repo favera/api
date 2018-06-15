@@ -36,6 +36,10 @@ var Asistencia = new Schema(
     observacion: {
       type: String
     },
+    pagoHoraExtra: {
+      type: Boolean,
+      default: false
+    },
     estilo: {
       ausente: {
         type: Boolean,
