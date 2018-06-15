@@ -92,8 +92,8 @@ adelantoRoutes.route("/").get(function(req, res) {
   }
   console.log("Resultado query", query);
   var options = {
-    sort: { nombre: 1 },
-    // populate: { path: "funcionario"},
+    sort: { _id: -1 },
+    populate: { path: "funcionario" },
     lean: true,
     page: parseInt(req.query.page),
     limit: parseInt(req.query.limit)
