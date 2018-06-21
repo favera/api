@@ -40,6 +40,10 @@ var Asistencia = new Schema(
       type: Boolean,
       default: false
     },
+    bancoHora: {
+      type: Boolean,
+      default: false
+    },
     estilo: {
       ausente: {
         type: Boolean,

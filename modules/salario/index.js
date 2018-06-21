@@ -56,17 +56,25 @@ salarioRoutes.route("/add/detail/:id").put(function(req, res) {
 
 //###Banco de Hora###
 
-salarioRoutes.route("/add/banco-hora").post(function(req, res) {
-  var bancoHora = new BancoHora(req.body);
-
-  bancoHora
-    .save()
-    .then(result => {
-      res.status(200).send("add sucessfully");
-    })
-    .catch(e => {
+salarioRoutes.route("/add/banco-hora/:id").post(function(req, res) {
+  var query = { funcionario: req.params.id };
+  var update = {
+    $inc: {
+      totalMinutes: req.body.totalMinutes
+    }
+  };
+  var options = { new: true, upsert: true };
+  BancoHora.findOneAndUpdate(query, update, options).exec(function(
+    err,
+    result
+  ) {
+    console.log(result);
+    if (err) {
       res.status(400).send(err);
-    });
+    }
+
+    res.status(200).send(result);
+  });
 });
 
 salarioRoutes.route("/banco-hora/:id").get(function(req, res) {

@@ -72,10 +72,6 @@ asistenciaRoutes.route("/test-data").post(function(req, res) {
       res.status(200).json({ item: "Item added successfully" });
     })
     .catch(e => console.log("Error", e));
-  // console.log(success);
-  // if (success) {
-  //   res.status(200).json({ item: "Item added successfully" });
-  // }
 });
 
 //return all asistencias
@@ -236,7 +232,6 @@ asistenciaRoutes.route("/query-data").get(function(req, res) {
 
 // Defined get data(index or listing) route
 asistenciaRoutes.route("/").get(function(req, res) {
-  //console.log(req);
   var query = {};
   if (req.query.search) {
     query = { nombre: { $regex: req.query.search, $options: "i" } };
@@ -250,9 +245,6 @@ asistenciaRoutes.route("/").get(function(req, res) {
     limit: parseInt(req.query.limit)
   };
   Asistencia.paginate(query, options).then(result => {
-    // result.docs = result.docs.filter(function(asistencia) {
-    //   return asistencia.sucursal != null;
-    // });
     res.json(result);
   });
 
@@ -289,7 +281,7 @@ asistenciaRoutes.route("/edit/:id").get(function(req, res) {
 // //  Defined update route
 asistenciaRoutes.route("/update/:id").put(function(req, res) {
   Asistencia.findById(req.params.id, function(err, asistencia) {
-    if (!asistencia) return next(new Error("Could not load Document"));
+    if (!asistencia) return res.status(400).send("unable to get the field");
     else {
       asistencia.fecha = new Date(req.body.fecha);
       asistencia.entrada = req.body.entrada;
@@ -316,24 +308,80 @@ asistenciaRoutes.route("/update/:id").put(function(req, res) {
   });
 });
 
-//deactivate employee
-// asistenciaRoutes.route("/deactivate/:id").put(function(req, res) {
-//   Asistencia.findById(req.params.id, function(err, asistencia) {
-//     if (!asistencia) return next(new Error("Could not load Document"));
-//     else {
-//       asistencia.activo = req.body.activo;
+//update field hora extra
+asistenciaRoutes.route("/update-overtime/:id").put(function(req, res) {
+  Asistencia.findById(req.params.id, function(err, attendance) {
+    if (!attendance) {
+      console.log("error");
+    } else {
+      attendance.pagoHoraExtra = true;
+      attendance.save(function(err, attendanceUpdated) {
+        if (err) {
+          console.log("error");
+        }
 
-//       asistencia
-//         .save()
-//         .then(asistencia => {
-//           res.json("Update complete");
-//         })
-//         .catch(err => {
-//           res.status(400).send("unable to update the database");
-//         });
-//     }
-//   });
-// });
+        res.status(200).send(attendanceUpdated);
+      });
+    }
+  });
+});
+
+//update fiel banco de hora
+asistenciaRoutes.route("/update-banktime/:id").put(function(req, res) {
+  Asistencia.findById(req.params.id, function(err, attendance) {
+    if (!attendance) {
+      console.log("error");
+    } else {
+      attendance.bancoHora = true;
+      attendance.save(function(err, attendanceUpdated) {
+        if (err) {
+          console.log("error");
+        }
+
+        res.status(200).send(attendanceUpdated);
+      });
+    }
+  });
+});
+
+//Actualizar hora extra from resumen banco de hora
+asistenciaRoutes.route("/cancel-overtime/:id").put(function(req, res) {
+  var query = req.params.id;
+  var update = {
+    $set: { horasExtras: null, observacion: "No aceptable para banco de hora" }
+  };
+  var options = { new: true };
+  Asistencia.findByIdAndUpdate(query, update, options, function(
+    err,
+    attendance
+  ) {
+    if (err) {
+      res.status(400).send(err);
+    }
+    res.status(200).send(attendance);
+  });
+});
+
+//compensacion de retraso por banco de hora
+asistenciaRoutes.route("/amend-delay/:id").put(function(req, res) {
+  var query = req.params.id;
+  var update = {
+    $set: {
+      horasFaltantes: req.body.horasFaltantes,
+      observacion: "Compensacion de retraso por banco de hora"
+    }
+  };
+  var options = { new: true };
+  Asistencia.findByIdAndUpdate(query, update, options, function(
+    err,
+    attendanceUpdated
+  ) {
+    if (err) {
+      res.status(400).send(err);
+    }
+    res.status(200).send(attendanceUpdated);
+  });
+});
 
 // // Defined delete | remove | destroy route
 asistenciaRoutes.route("/delete/:id").delete(function(req, res) {
