@@ -7,7 +7,7 @@ var ResumenSalarial = require("./resumenSalarial");
 var ResumenBancoHora = require("./resumenBancoHora");
 var Asistencia = require("./../asistencia/asistencia");
 
-//### Periodo
+//### Periodo de pago de planillas de salarios
 salarioRoutes.route("/add/period").post(function(req, res) {
   console.log(req.body);
   var salario = new Salario(req.body);
@@ -20,6 +20,20 @@ salarioRoutes.route("/add/period").post(function(req, res) {
     .catch(err => {
       res.status(400).send(err);
     });
+});
+
+//Actualiza el array de detalle de salario, donde se detalla los pagos de cada funcionario
+salarioRoutes.route("/update/salary-detail/:id").put(function(req, res) {
+  Salario.findById(req.params.id, function(err, salaryResume) {
+    if (err) res.status(400).send(err);
+
+    salaryResume.salaryDetail = req.body;
+    salaryResume.detail = true;
+    salaryResume.save(function(err, updatedSalaryResume) {
+      if (err) res.status(400).send(e);
+      res.status(200).send("Detail updated!");
+    });
+  });
 });
 
 salarioRoutes.route("/").get(function(req, res) {
@@ -37,6 +51,14 @@ salarioRoutes.route("/").get(function(req, res) {
     .catch(err => {
       res.status(400).send(err);
     });
+});
+
+//Obtener detalle
+salarioRoutes.route("/salary-detail/:id").get(function(req, res) {
+  Salario.findById(req.params.id).exec(function(err, salaryDetail) {
+    if (err) res.status(400).send(err);
+    res.status(200).send(salaryDetail);
+  });
 });
 
 salarioRoutes.route("/add/detail/:id").put(function(req, res) {

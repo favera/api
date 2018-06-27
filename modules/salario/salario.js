@@ -16,6 +16,11 @@ var Salario = new Schema(
       type: String,
       default: "Pendiente"
     },
+    detail: {
+      type: Boolean,
+      default: false
+    },
+
     salaryDetail: [
       {
         employee: {
@@ -23,47 +28,48 @@ var Salario = new Schema(
           ref: "Funcionario"
           // required: true
         },
-        monthHours: {
+        name: {
           type: String
           // required: true
         },
-        workingHours: {
-          type: String
-          // required: true
-        },
-        hourBank: {
-          type: String
+        extraHourMinutes: {
+          type: Number
           // required: true
         },
         delay: {
-          type: String
+          type: Number
           // required: true
+        },
+        abscence: {
+          type: Number
         },
         salary: {
           type: String
           // required: true
         },
+        coin: {
+          type: String
+        },
         ips: {
-          type: String
+          type: Number
           // required: true
         },
-        discount: {
-          type: String
-          // required: true
-        },
-        extraHour: {
-          type: String
-          // required: true
-        },
-        advanceSalary: {
-          type: String
-          // required: true
+        salaryAdvance: {
+          type: Number
         },
         lending: {
           type: String
           // required: true
         },
-        netSalary: {
+        discount: {
+          type: Number
+          // required: true
+        },
+        extraHourValue: {
+          type: String
+          // required: true
+        },
+        salaryBalance: {
           type: String
           // required: true
         }
