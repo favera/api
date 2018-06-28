@@ -80,6 +80,6 @@ var Salario = new Schema(
     collection: "salario"
   }
 );
-
+Salario.index({ month: 1, year: 1 }, { unique: true });
 Salario.plugin(mongoosePaginate);
 module.exports = mongoose.model("Salario", Salario);

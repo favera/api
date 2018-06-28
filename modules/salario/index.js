@@ -15,7 +15,7 @@ salarioRoutes.route("/add/period").post(function(req, res) {
   salario
     .save()
     .then(salario => {
-      res.status(200).send("Data add successfully");
+      res.status(200).send(salario);
     })
     .catch(err => {
       res.status(400).send(err);
@@ -125,6 +125,26 @@ salarioRoutes.route("/attendance-historic/:id").get(function(req, res) {
     .catch(e => {
       res.status(400).send(e);
     });
+});
+
+//Defined delete | remove | destroy route
+salarioRoutes.route("/delete/:id").delete(function(req, res) {
+  Salario.findByIdAndRemove({ _id: req.params.id }, function(err, item) {
+    if (err) res.status(400).send(err);
+    res.status(200).send("Successfully removed");
+  });
+});
+
+salarioRoutes.route("/update-status/:id").put(function(req, res) {
+  Salario.findByIdAndUpdate(
+    req.params.id,
+    { status: "Aprobado" },
+    { new: true },
+    function(err, updatedPayroll) {
+      if (err) res.status(400).send(err);
+      res.status(200).send(updatedPayroll);
+    }
+  );
 });
 
 //### Resumen Salarial ### /
