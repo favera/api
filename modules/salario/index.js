@@ -27,7 +27,9 @@ salarioRoutes.route("/update/salary-detail/:id").put(function(req, res) {
   Salario.findById(req.params.id, function(err, salaryResume) {
     if (err) res.status(400).send(err);
 
-    salaryResume.salaryDetail = req.body;
+    console.log(req.body);
+
+    // salaryResume.salaryDetail = req.body;
     salaryResume.detail = true;
     salaryResume.save(function(err, updatedSalaryResume) {
       if (err) res.status(400).send(e);

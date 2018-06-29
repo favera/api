@@ -4,6 +4,9 @@ var prestamoRoutes = express.Router();
 // Require Prestamo model in our routes module
 var Prestamo = require("./prestamo");
 
+//Importando Object Id
+var ObjectID = require("mongodb").ObjectID;
+
 // Defined store route
 prestamoRoutes.route("/add").post(function(req, res) {
   var prestamo = new Prestamo(req.body);
@@ -109,6 +112,41 @@ prestamoRoutes.route("/edit/:id").get(function(req, res) {
   Prestamo.findById(id, function(err, prestamo) {
     res.json(prestamo);
   });
+});
+//Actualizar prestamos que fueron descontados en la planilla de salarios, en el body se pasa el array de los id de los prestamos
+//actualizado desde Detalle Planilla.
+prestamoRoutes.route("/update/lending/processed").put(function(req, res) {
+  console.log(req.body);
+  var result;
+  req.body.forEach(lending => {
+    Prestamo.update(
+      { "cuotas._id": new ObjectID(lending) },
+      { $set: { "cuotas.$.estado": "procesado" } },
+      function(err, updatedLending) {
+        if (err) {
+          console.log(err);
+          res.status(400).send("Error updating lendigns");
+        }
+        console.log(updatedLending);
+        // result = true;
+      }
+    );
+  });
+  // if (!result) res.status(400).send("Error updating lendigns");
+  res.status(200).send("All lendigns where updated");
+});
+
+//Actualizar desde crear planilla
+prestamoRoutes.route("/update/lending/paid").put(function(req, res) {
+  Prestamo.update(
+    { "cuotas.estado": "procesado" },
+    { $set: { "cuotas.$.estado": "pagado" } },
+    { multi: true },
+    function(err, updatedItem) {
+      if (err) res.status(400).send(err);
+      res.status(200).send(updatedItem);
+    }
+  );
 });
 
 // //  Defined update route

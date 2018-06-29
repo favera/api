@@ -20,7 +20,7 @@ var Salario = new Schema(
       type: Boolean,
       default: false
     },
-
+    lendingIdentifiers: [],
     salaryDetail: [
       {
         employee: {
@@ -61,6 +61,7 @@ var Salario = new Schema(
           type: String
           // required: true
         },
+
         discount: {
           type: Number
           // required: true
