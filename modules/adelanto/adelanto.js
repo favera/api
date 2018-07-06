@@ -25,11 +25,11 @@ var Adelanto = new Schema(
       required: true
     },
     monto: {
-      type: String,
+      type: Number,
       required: true,
       validate: {
         validator: function(value) {
-          return value.split(".").join("") > 0;
+          return value > 0;
         },
         message: "Valor debe ser mayor a 0"
       }

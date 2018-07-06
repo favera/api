@@ -43,7 +43,7 @@ var Funcionario = new Schema(
       required: true
     },
     salario: {
-      type: String,
+      type: Number,
       required: true
     },
     salarioMinuto: {

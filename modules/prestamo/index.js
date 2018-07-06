@@ -9,6 +9,7 @@ var ObjectID = require("mongodb").ObjectID;
 
 // Defined store route
 prestamoRoutes.route("/add").post(function(req, res) {
+  req.body.monto = parseInt(req.body.monto.split(".").join(""));
   var prestamo = new Prestamo(req.body);
   prestamo
     .save()
@@ -19,6 +20,32 @@ prestamoRoutes.route("/add").post(function(req, res) {
       console.log(err);
       res.status(400).send(err);
     });
+});
+
+//retornar cuotas por funcionario y mes
+prestamoRoutes.route("/employee-lending/:id").get(function(req, res) {
+  var cuotaDate, vencimiento;
+  var resultado = [];
+  vencimiento = new Date(req.query.start);
+  Prestamo.find(
+    {
+      funcionario: new ObjectID(req.params.id),
+      "cuotas.vencimiento": { $gte: req.query.start, $lte: req.query.end }
+    },
+    function(err, lendings) {
+      if (err) res.status(400).send(err);
+
+      lendings.forEach(lending => {
+        lending.cuotas.forEach(cuota => {
+          cuotaDate = new Date(cuota.vencimiento);
+          if (vencimiento.getMonth() === cuotaDate.getMonth()) {
+            resultado.push(cuota);
+          }
+        });
+      });
+      res.status(200).send(resultado);
+    }
+  );
 });
 
 //return loan of period dates

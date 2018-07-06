@@ -29,7 +29,7 @@ salarioRoutes.route("/update/salary-detail/:id").put(function(req, res) {
 
     console.log(req.body);
 
-    // salaryResume.salaryDetail = req.body;
+    salaryResume.salaryDetail = req.body;
     salaryResume.detail = true;
     salaryResume.save(function(err, updatedSalaryResume) {
       if (err) res.status(400).send(e);

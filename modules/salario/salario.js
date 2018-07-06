@@ -73,7 +73,23 @@ var Salario = new Schema(
         salaryBalance: {
           type: String
           // required: true
-        }
+        },
+        salarySummary: [
+          {
+            date: {
+              type: String
+            },
+            description: {
+              type: String
+            },
+            amount: {
+              type: String
+            },
+            coin: {
+              type: String
+            }
+          }
+        ]
       }
     ]
   },

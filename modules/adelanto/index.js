@@ -2,7 +2,8 @@
 
 var express = require("express");
 var adelantoRoutes = express.Router();
-
+//importar ObjectID para consultas
+var ObjectID = require("mongodb").ObjectID;
 // Require Item model in our routes module
 var Adelanto = require("./adelanto");
 

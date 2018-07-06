@@ -17,7 +17,7 @@ var Prestamo = new Schema(
       type: String
     },
     monto: {
-      type: String,
+      type: Number,
       required: true
     },
     moneda: {
@@ -39,7 +39,7 @@ var Prestamo = new Schema(
           required: true
         },
         monto: {
-          type: String
+          type: Number
         },
         moneda: {
           type: String
