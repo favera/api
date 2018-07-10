@@ -1,32 +1,32 @@
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
-// Define collection and schema for Items
-var Sucursal = new Schema(
+// Define collection and schema for Subsidiaries
+var Subsidiary = new Schema(
   {
-    nombre: {
+    name: {
       type: String,
       required: true
     },
-    horaEntrada: {
+    startingTime: {
       type: String,
       required: true
     },
-    horaSalida: {
+    endTime: {
       type: String,
       required: true
     },
-    telefono: {
+    phone: {
       type: String
     },
-    activo: {
+    active: {
       type: Boolean,
       default: true
     }
   },
   {
-    collection: "sucursales"
+    collection: "subsidiaries"
   }
 );
 
-module.exports = mongoose.model("Sucursal", Sucursal);
+module.exports = mongoose.model("Subsidiary", Subsidiary);

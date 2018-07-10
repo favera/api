@@ -1,57 +1,55 @@
-// itemRoutes.js
-
 var express = require("express");
-var sucursalRoutes = express.Router();
+var subsidiaryRoutes = express.Router();
 
 // Require Item model in our routes module
-var Sucursal = require("./sucursal");
-var Funcionario = require("../funcionario/funcionario");
+var Subsidiary = require("./sucursal");
+var Employee = require("../funcionario/funcionario");
 
 // Defined store route
-sucursalRoutes.route("/add").post(function(req, res) {
-  var sucursal = new Sucursal(req.body);
-  sucursal
+subsidiaryRoutes.route("/add").post(function(req, res) {
+  var subsidiary = new Subsidiary(req.body);
+  subsidiary
     .save()
     .then(item => {
       res.status(200).json({ item: "Item added successfully" });
     })
     .catch(err => {
-      res.status(400).send("unable to save to database");
+      res.status(400).send(err);
     });
 });
 
 // Defined get data(index or listing) route
-sucursalRoutes.route("/").get(function(req, res) {
-  Sucursal.find({ activo: true }, function(err, sucursales) {
+subsidiaryRoutes.route("/").get(function(req, res) {
+  Subsidiary.find({ active: true }, function(err, subsidiary) {
     if (err) {
       console.log(err);
     } else {
-      res.json(sucursales);
+      res.json(subsidiary);
     }
   });
 });
 
 // // Defined edit route
-sucursalRoutes.route("/edit/:id").get(function(req, res) {
+subsidiaryRoutes.route("/edit/:id").get(function(req, res) {
   var id = req.params.id;
-  Sucursal.findById(id, function(err, sucursal) {
-    res.json(sucursal);
+  Subsidiary.findById(id, function(err, subsidiary) {
+    res.json(subsidiary);
   });
 });
 
 // //  Defined update route
-sucursalRoutes.route("/update/:id").put(function(req, res) {
-  Sucursal.findById(req.params.id, function(err, sucursal) {
-    if (!sucursal) return next(new Error("Could not load Document"));
+subsidiaryRoutes.route("/update/:id").put(function(req, res) {
+  Subsidiary.findById(req.params.id, function(err, subsidiary) {
+    if (!subsidiary) return next(new Error("Could not load Document"));
     else {
-      sucursal.nombre = req.body.nombre;
-      sucursal.horaEntrada = req.body.horaEntrada;
-      sucursal.horaSalida = req.body.horaSalida;
-      sucursal.telefono = req.body.telefono;
+      subsidiary.name = req.body.nombre;
+      subsidiary.startingTime = req.body.startingTime;
+      subsidiary.endTime = req.body.endTime;
+      subsidiary.phone = req.body.phone;
 
-      sucursal
+      subsidiary
         .save()
-        .then(sucursal => {
+        .then(subsidiary => {
           res.json("Update complete");
         })
         .catch(err => {
@@ -62,45 +60,45 @@ sucursalRoutes.route("/update/:id").put(function(req, res) {
 });
 
 // // Defined delete | remove | destroy route
-sucursalRoutes.route("/delete/:id").delete(function(req, res) {
-  var sucursales = [];
-  Funcionario.distinct("sucursal", function(err, response) {
+subsidiaryRoutes.route("/delete/:id").delete(function(req, res) {
+  var subsidiaries = [];
+  Employee.distinct("subsidiary", function(err, response) {
     console.log(response);
-    sucursales = response;
+    subsidiaries = response;
 
-    allowDelete = sucursales.findIndex(sucursal => {
+    allowDelete = subsidiaries.findIndex(subsidiary => {
       //probar en casa porque parece que da problema.. en la comparacion
-      console.log(typeof sucursal, typeof req.params.id);
-      return sucursal.toHexString() === req.params.id;
+      console.log(typeof subsidiary, typeof req.params.id);
+      return subsidiary.toHexString() === req.params.id;
     });
     console.log("Resultado", allowDelete);
 
     if (allowDelete === -1) {
-      Sucursal.findByIdAndRemove({ _id: req.params.id }, function(
+      Subsidiary.findByIdAndRemove({ _id: req.params.id }, function(
         err,
-        sucursal
+        subsidiaryRemoved
       ) {
         if (err) res.json(err);
         else res.status(200).send("Successfully removed");
       });
     } else {
-      Funcionario.find({ sucursal: req.params.id, activo: true }, function(
+      Employee.find({ sucursal: req.params.id, activo: true }, function(
         err,
-        funcionarios
+        employees
       ) {
         if (err) console.log(err);
 
-        if (funcionarios.length > 0) {
+        if (employees.length > 0) {
           res
             .status(403)
             .send(
               "No es posible Eliminar el registro ya que existen empleados en esta sucursal"
             );
         } else {
-          Sucursal.update(
+          Subsidiary.update(
             { _id: req.params.id },
             { $set: { activo: false } },
-            function(err, sucursal) {
+            function(err, subsidiary) {
               if (err) return res.status(400).send;
 
               res.status(200).send("Updated susscesfully");
@@ -111,8 +109,5 @@ sucursalRoutes.route("/delete/:id").delete(function(req, res) {
     }
   });
 });
-// Sucursal.find({"_id":{$nin : Funcionario.distinct("sucursal")}}, function(err, sucursalesEliminar){
-//   sucursales = sucursalesEliminar;
-//   console.log(err, sucursalesEliminar);
-// });
-module.exports = sucursalRoutes;
+
+module.exports = subsidiaryRoutes;

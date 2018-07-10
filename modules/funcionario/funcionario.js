@@ -2,7 +2,7 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 var mongoosePaginate = require("mongoose-paginate");
 
-var Funcionario = new Schema(
+var Employee = new Schema(
   {
     acnro: {
       type: String,
@@ -10,15 +10,15 @@ var Funcionario = new Schema(
       index: true,
       unique: true
     },
-    activo: {
+    active: {
       type: Boolean,
       required: true
     },
-    cargaLaboral: {
+    workingHours: {
       type: String,
       required: true
     },
-    fechaIngreso: {
+    admissionDate: {
       type: String,
       required: true
     },
@@ -26,47 +26,43 @@ var Funcionario = new Schema(
       type: String,
       required: true
     },
-    medioTiempo: {
+    halfTime: {
       type: Boolean,
       required: true
     },
-    moneda: {
+    coin: {
       type: String,
       required: true
     },
-    nombre: {
+    name: {
       type: String,
       required: true
     },
-    nroCedula: {
+    identityNumber: {
       type: String,
       required: true
     },
-    salario: {
+    salary: {
       type: Number,
       required: true
     },
-    salarioMinuto: {
+    salaryPerMinute: {
       type: Number,
       required: true
     },
-    sucursal: {
+    subsidiary: {
       type: Schema.Types.ObjectId,
-      ref: "Sucursal",
+      ref: "Subsidiary",
       required: true
     },
-    tipoHoraExtra: {
-      type: String,
-      required: true
-    },
-    vacaciones: {
+    vacations: {
       type: [String]
     }
   },
   {
-    collection: "funcionarios"
+    collection: "employees"
   }
 );
-Funcionario.plugin(mongoosePaginate);
+Employee.plugin(mongoosePaginate);
 
-module.exports = mongoose.model("Funcionario", Funcionario);
+module.exports = mongoose.model("Employee", Employee);

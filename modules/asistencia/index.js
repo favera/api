@@ -383,6 +383,20 @@ asistenciaRoutes.route("/amend-delay/:id").put(function(req, res) {
   });
 });
 
+//query for dashboard return all delays
+asistenciaRoutes.route("/all-delays").get(function(req, res) {
+  console.log(req.query.inicio, req.query.fin);
+  Asistencia.find(
+    //
+    { fecha: { $gte: req.query.inicio, $lte: req.query.fin } },
+    { horasFaltantes: { $ne: null } },
+    function(err, attendances) {
+      if (err) res.status(400).send(err);
+      res.status(200).send(attendances);
+    }
+  );
+});
+
 // // Defined delete | remove | destroy route
 asistenciaRoutes.route("/delete/:id").delete(function(req, res) {
   Asistencia.findByIdAndRemove({ _id: req.params.id }, function(err, item) {
