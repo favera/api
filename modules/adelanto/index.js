@@ -1,19 +1,17 @@
-// itemRoutes.js
-
 var express = require("express");
-var adelantoRoutes = express.Router();
+var advanceRoutes = express.Router();
 //importar ObjectID para consultas
 var ObjectID = require("mongodb").ObjectID;
 // Require Item model in our routes module
-var Adelanto = require("./adelanto");
+var Advance = require("./adelanto");
 
 // Defined store route
-adelantoRoutes.route("/add").post(function(req, res) {
-  if (req.body.fecha) {
-    req.body.fecha = new Date(req.body.fecha);
+advanceRoutes.route("/add").post(function(req, res) {
+  if (req.body.date) {
+    req.body.date = new Date(req.body.date);
   }
-  var adelanto = new Adelanto(req.body);
-  adelanto
+  var advance = new Advance(req.body);
+  advance
     .save()
     .then(item => {
       res.status(200).json({ item: "Item added successfully" });
@@ -24,16 +22,17 @@ adelantoRoutes.route("/add").post(function(req, res) {
 });
 
 //return all adelantos
-adelantoRoutes.route("/full-list").get(function(req, res) {
-  Adelanto.find().then(result => {
+advanceRoutes.route("/full-list").get(function(req, res) {
+  Advance.find().then(result => {
     res.json(result);
   });
 });
 
 //return monthly advance
-adelantoRoutes.route("/monthly-advance").get(function(req, res) {
-  console.log(req.query.inicio, req.query.fin);
-  Adelanto.find({ fecha: { $gte: req.query.inicio, $lte: req.query.fin } })
+advanceRoutes.route("/monthly-advance").get(function(req, res) {
+  Advance.find({
+    date: { $gte: req.query.startDate, $lte: req.query.endDate }
+  })
     .then(result => {
       res.json(result);
     })
@@ -41,116 +40,87 @@ adelantoRoutes.route("/monthly-advance").get(function(req, res) {
 });
 
 // Defined get data(index or listing) route
-adelantoRoutes.route("/").get(function(req, res) {
-  //console.log(req);
-  var inicio, fin;
+advanceRoutes.route("/").get(function(req, res) {
+  var startDate, endDate;
   var query = {};
-  console.log(req.query.busqueda, req.query.inicio, req.query.fin);
-  if (req.query.inicio !== "null") {
-    console.log("fecha Inicio", req.query.inicio);
-    inicio = new Date(req.query.inicio);
+
+  if (req.query.startDate !== "null") {
+    startDate = new Date(req.query.startDate);
   }
 
-  if (req.query.fin !== "null") {
-    console.log("fecha Fin", req.query.fin);
-    fin = new Date(req.query.fin);
+  if (req.query.endDate !== "null") {
+    endDate = new Date(req.query.endDate);
   }
 
-  if (req.query.busqueda === "null") {
-    req.query.busqueda = null;
+  if (req.query.parameter === "null") {
+    req.query.parameter = null;
   }
 
   //si todos los parametros son enviados
-  if (req.query.busqueda && inicio && fin) {
+  if (req.query.parameter && startDate && endDate) {
     query = {
-      fecha: { $gte: inicio, $lte: fin },
-      nombreFuncionario: { $regex: req.query.busqueda, $options: "i" }
+      date: { $gte: startDate, $lte: endDate },
+      employeeName: { $regex: req.query.parameter, $options: "i" }
     };
   }
 
   //si campo busqueda es nulo, pero fecha inicio y fin no es nulo
-  if (!req.query.busqueda && inicio && fin) {
-    console.log("query utilizada", inicio, fin);
-    query = { fecha: { $gte: inicio, $lte: fin } };
+  if (!req.query.parameter && startDate && endDate) {
+    query = { date: { $gte: startDate, $lte: endDate } };
   }
 
   //busqueda es nulo, y fecha fin tambien, se le asigna la fecha de hoy
-  if (!req.query.busqueda && inicio && !fin) {
-    query = { fecha: { $gte: inicio, $lte: new Date() } };
+  if (!req.query.parameter && startDate && !endDate) {
+    query = { date: { $gte: startDate, $lte: new Date() } };
   }
 
-  if (req.query.busqueda && inicio && !fin) {
+  if (req.query.parameter && startDate && !endDate) {
     query = {
-      fecha: { $gte: inicio, $lte: new Date() },
-      nombreFuncionario: { $regex: req.query.busqueda, $options: "i" }
+      date: { $gte: startDate, $lte: new Date() },
+      employeeName: { $regex: req.query.parameter, $options: "i" }
     };
   }
 
-  if (req.query.busqueda && !inicio && !fin) {
+  if (req.query.parameter && !startDate && !endDate) {
     query = {
-      nombreFuncionario: { $regex: req.query.busqueda, $options: "i" }
+      employeeName: { $regex: req.query.parameter, $options: "i" }
     };
   }
-  console.log("Resultado query", query);
   var options = {
     sort: { _id: -1 },
-    populate: { path: "funcionario" },
+    populate: { path: "employee" },
     lean: true,
     page: parseInt(req.query.page),
     limit: parseInt(req.query.limit)
   };
-  Adelanto.paginate(query, options).then(result => {
-    // result.docs = result.docs.filter(function(adelanto) {
-    //   return adelanto.sucursal != null;
-    // });
+  Advance.paginate(query, options).then(result => {
     res.json(result);
   });
-
-  /* var perPage = 10,
-    page = Math.max(0, req.query.page);
-
-  adelanto.find(query)
-    .limit(perPage)
-    .skip(perPage * page)
-    .populate({
-      path: "sucursal",
-      match: { nombre: "MDL BOX" }
-    })
-    .exec(function(err, adelantos) {
-      if (err) {
-        console.log(err);
-      } else {
-        // adelantos = adelantos.filter(function(adelanto) {
-        //   return adelanto.sucursal != null;
-        // });
-        res.json(adelantos);
-      }
-    });*/
 });
 
 // // Defined edit route
-adelantoRoutes.route("/edit/:id").get(function(req, res) {
+advanceRoutes.route("/edit/:id").get(function(req, res) {
   var id = req.params.id;
-  Adelanto.findById(id, function(err, adelanto) {
-    res.json(adelanto);
+  Advance.findById(id, function(err, advance) {
+    res.json(advance);
   });
 });
 
 // //  Defined update route
-adelantoRoutes.route("/update/:id").put(function(req, res) {
-  Adelanto.findById(req.params.id, function(err, adelanto) {
-    if (!adelanto) return next(new Error("Could not load Document"));
+advanceRoutes.route("/update/:id").put(function(req, res) {
+  Advance.findById(req.params.id, function(err, advance) {
+    if (!advance) return next(new Error("Could not load Document"));
     else {
-      adelanto.fecha = new Date(req.body.fecha);
-      adelanto.tipoAdelanto = req.body.tipoAdelanto;
-      adelanto.funcionario = req.body.funcionario;
-      adelanto.nombreFuncionario = req.body.nombreFuncionario;
-      adelanto.monto = req.body.monto;
-      adelanto.moneda = req.body.moneda;
+      advance.date = new Date(req.body.date);
+      advance.advanceType = req.body.advanceType;
+      advance.employee = req.body.employee;
+      advance.employeeName = req.body.employeeName;
+      advance.monto = req.body.monto;
+      advance.moneda = req.body.moneda;
 
-      adelanto
+      advance
         .save()
-        .then(adelanto => {
+        .then(advance => {
           res.json("Update complete");
         })
         .catch(err => {
@@ -160,31 +130,12 @@ adelantoRoutes.route("/update/:id").put(function(req, res) {
   });
 });
 
-//deactivate employee
-// adelantoRoutes.route("/deactivate/:id").put(function(req, res) {
-//   Adelanto.findById(req.params.id, function(err, adelanto) {
-//     if (!adelanto) return next(new Error("Could not load Document"));
-//     else {
-//       adelanto.activo = req.body.activo;
-
-//       adelanto
-//         .save()
-//         .then(adelanto => {
-//           res.json("Update complete");
-//         })
-//         .catch(err => {
-//           res.status(400).send("unable to update the database");
-//         });
-//     }
-//   });
-// });
-
 // Defined delete | remove | destroy route
-adelantoRoutes.route("/delete/:id").delete(function(req, res) {
-  Adelanto.findByIdAndRemove({ _id: req.params.id }, function(err, item) {
+advanceRoutes.route("/delete/:id").delete(function(req, res) {
+  Advance.findByIdAndRemove({ _id: req.params.id }, function(err, item) {
     if (err) res.json(err);
     else res.json("Successfully removed");
   });
 });
 
-module.exports = adelantoRoutes;
+module.exports = advanceRoutes;

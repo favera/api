@@ -2,29 +2,29 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 var mongoosePaginate = require("mongoose-paginate");
 
-var Adelanto = new Schema(
+var SalaryAdvance = new Schema(
   {
-    fecha: {
+    date: {
       type: Date,
       required: true
     },
-    funcionario: {
+    employee: {
       type: Schema.Types.ObjectId,
-      ref: "Funcionario",
+      ref: "Employee",
       required: true
     },
-    nombreFuncionario: {
+    employeeName: {
       type: String
     },
-    tipoAdelanto: {
+    advanceType: {
       type: String,
       required: true
     },
-    moneda: {
+    coin: {
       type: String,
       required: true
     },
-    monto: {
+    amount: {
       type: Number,
       required: true,
       validate: {
@@ -36,9 +36,9 @@ var Adelanto = new Schema(
     }
   },
   {
-    collection: "adelantos"
+    collection: "salaryAdvances"
   }
 );
-Adelanto.plugin(mongoosePaginate);
+SalaryAdvance.plugin(mongoosePaginate);
 
-module.exports = mongoose.model("Adelanto", Adelanto);
+module.exports = mongoose.model("SalaryAdvance", SalaryAdvance);

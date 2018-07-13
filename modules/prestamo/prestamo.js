@@ -2,58 +2,58 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 var mongoosePaginate = require("mongoose-paginate");
 
-var Prestamo = new Schema(
+var Lending = new Schema(
   {
-    fecha: {
+    date: {
       type: Date,
       required: true
     },
-    funcionario: {
+    employee: {
       type: Schema.Types.ObjectId,
-      ref: "Funcionario",
+      ref: "Employee",
       required: true
     },
-    nombreFuncionario: {
+    employeeName: {
       type: String
     },
-    monto: {
+    amount: {
       type: Number,
       required: true
     },
-    moneda: {
+    coin: {
       type: String,
       required: true
     },
-    inicioPago: {
+    startMonth: {
       type: Date,
       required: true
     },
-    nroCuotas: {
+    installmentNumber: {
       type: Number,
       required: true
     },
-    cuotas: [
+    installments: [
       {
-        vencimiento: {
+        dueDate: {
           type: Date,
           required: true
         },
-        monto: {
+        amount: {
           type: Number
         },
-        moneda: {
+        coin: {
           type: String
         },
-        estado: {
+        state: {
           type: String
         }
       }
     ]
   },
   {
-    collection: "prestamos"
+    collection: "lendings"
   }
 );
-Prestamo.plugin(mongoosePaginate);
+Lending.plugin(mongoosePaginate);
 
-module.exports = mongoose.model("Prestamo", Prestamo);
+module.exports = mongoose.model("Lending", Lending);
