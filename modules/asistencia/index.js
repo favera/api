@@ -1,17 +1,17 @@
 // itemRoutes.js
 
 var express = require("express");
-var asistenciaRoutes = express.Router();
+var attendanceRoutes = express.Router();
 var ObjectID = require("mongodb").ObjectID;
 
 // Require Item model in our routes module
-var Asistencia = require("./asistencia");
+var Attendance = require("./asistencia");
 
 // Defined store route
-asistenciaRoutes.route("/add").post(function(req, res) {
-  var asistencia = new Asistencia(req.body);
+attendanceRoutes.route("/add").post(function(req, res) {
+  var attendance = new Attendance(req.body);
 
-  asistencia
+  attendance
     .save()
     .then(item => {
       res.status(200).json({ item: "Item added successfully" });
@@ -24,14 +24,14 @@ asistenciaRoutes.route("/add").post(function(req, res) {
       //     { funcionario: ObjectID(req.body.funcionario), fecha: new Date(req.body.fecha) },
       //     {
       //       $set: {
-      //         nombreFuncionario: req.body.nombreFuncionario,
-      //         entrada: req.body.entrada,
-      //         salida: req.body.salida,
-      //         horasTrabajadas: req.body.horasTrabajadas,
+      //         employeeName: req.body.employeeName,
+      //         attEntry: req.body.attEntry,
+      //         attExit: req.body.attExit,
+      //         workingHours: req.body.workingHours,
       //         horasExtras: req.body.horasExtras,
       //         horasFaltantes: req.body.horasFaltantes,
       //         observacion: req.body.observacion,
-      //         estilo: req.body.estilo
+      //         status: req.body.status
       //       }
       //     },
       //     { new: true },
@@ -51,23 +51,23 @@ asistenciaRoutes.route("/add").post(function(req, res) {
 });
 
 // Defined store route
-asistenciaRoutes.route("/test-data").post(function(req, res) {
+attendanceRoutes.route("/test-data").post(function(req, res) {
   console.log(req.body);
   console.log("END BODY");
 
-  var asistencias = [];
+  var attendances = [];
   req.body.forEach(element => {
-    if (element.fecha) {
-      element.fecha = new Date(element.fecha);
+    if (element.date) {
+      element.date = new Date(element.date);
       console.log(element);
-      asistencias.push(element);
+      attendances.push(element);
     }
   });
 
-  console.log(JSON.stringify(asistencias));
-  Asistencia.insertMany(asistencias)
+  console.log(JSON.stringify(attendances));
+  Attendance.insertMany(attendances)
     .then(docs => {
-      asistencias.length = 0;
+      attendances.length = 0;
       console.log("Response?", docs);
       res.status(200).json({ item: "Item added successfully" });
     })
@@ -75,144 +75,140 @@ asistenciaRoutes.route("/test-data").post(function(req, res) {
 });
 
 //return all asistencias
-asistenciaRoutes.route("/full-list").get(function(req, res) {
-  var inicio, fin;
-  console.log(req.query.inicio, req.query.fin);
-  if (req.query.inicio && req.query.fin) {
-    inicio = new Date(req.query.inicio);
-    fin = new Date(req.query.fin);
-    console.log(inicio, fin);
+attendanceRoutes.route("/full-list").get(function(req, res) {
+  var start, end;
+  console.log(req.query.startDate, req.query.endDate);
+  if (req.query.startDate && req.query.endDate) {
+    start = new Date(req.query.startDate);
+    end = new Date(req.query.endDate);
+    console.log(start, end);
   }
 
   if (req.query.fechaPlanilla) {
-    inicio = fin = new Date(req.query.fechaPlanilla);
-    console.log(inicio, fin);
+    start = end = new Date(req.query.fechaPlanilla);
+    console.log(start, end);
   }
 
-  Asistencia.find({ fecha: { $gte: req.query.inicio, $lte: req.query.fin } })
-    .populate("funcionario")
+  Attendance.find({
+    date: { $gte: req.query.startDate, $lte: req.query.endDate }
+  })
+    .populate("employee")
     .then(result => {
       res.json(result);
     })
     .catch(e => console.log(e));
 });
 
-asistenciaRoutes.route("/query-data").get(function(req, res) {
-  var inicio, fin;
-  if (req.query.inicio) {
-    inicio = new Date(req.query.inicio);
-    console.log(inicio);
+attendanceRoutes.route("/query-data").get(function(req, res) {
+  var start, end;
+  if (req.query.startDate) {
+    start = new Date(req.query.startDate);
+    console.log(start);
   }
-  if (req.query.fin) {
-    fin = new Date(req.query.fin);
-    console.log(fin);
+  if (req.query.endDate) {
+    end = new Date(req.query.endDate);
+    console.log(end);
   }
 
-  if (req.query.busqueda === "null") {
-    req.query.busqueda = null;
+  if (req.query.parameter === "null") {
+    req.query.parameter = null;
   }
 
   //console.log(typeof req.query.busqueda);
-  if (!req.query.busqueda) {
-    console.log("Busqueda null");
+  if (!req.query.parameter) {
     var query = {
-      fecha: { $gte: inicio, $lte: fin }
+      date: { $gte: start, $lte: end }
     };
   }
 
-  // $or: [
-  //   { nombreFuncionario: { $regex: req.query.busqueda, $options: "i" } },
-  //   { observacion: { $regex: req.query.busqueda, $options: "i" } }
-  // ]
-
-  if (req.query.estado === "ausentes" && req.query.busqueda) {
+  if (req.query.status === "ausentes" && req.query.parameter) {
     console.log("ausentes e incompletos");
     var query = {
       $and: [
-        { fecha: { $gte: inicio, $lte: fin } },
-        { "estilo.ausente": { $eq: true } },
+        { date: { $gte: start, $lte: end } },
+        { "status.absent": { $eq: true } },
         {
           $or: [
             {
-              nombreFuncionario: { $regex: req.query.busqueda, $options: "i" }
+              employeeName: { $regex: req.query.parameter, $options: "i" }
             },
-            { observacion: { $regex: req.query.busqueda, $options: "i" } }
+            { remark: { $regex: req.query.parameter, $options: "i" } }
           ]
         }
       ]
     };
   }
 
-  if (req.query.estado === "ausentes" && !req.query.busqueda) {
+  if (req.query.status === "ausentes" && !req.query.parameter) {
     console.log("solo ausentes");
     var query = {
-      fecha: { $gte: inicio, $lte: fin },
-      "estilo.ausente": { $eq: true }
+      date: { $gte: start, $lte: end },
+      "status.absent": { $eq: true }
     };
   }
 
-  if (req.query.estado === "incompletos" && req.query.busqueda) {
+  if (req.query.status === "incompletos" && req.query.parameter) {
     console.log("incompletos y busqueda");
     var query = {
       $and: [
-        { fecha: { $gte: inicio, $lte: fin } },
-        { "estilo.incompleto": { $eq: true } },
+        { date: { $gte: start, $lte: end } },
+        { "status.incomplete": { $eq: true } },
         {
           $or: [
             {
-              nombreFuncionario: { $regex: req.query.busqueda, $options: "i" }
+              employeeName: { $regex: req.query.parameter, $options: "i" }
             },
-            { observacion: { $regex: req.query.busqueda, $options: "i" } }
+            { remark: { $regex: req.query.parameter, $options: "i" } }
           ]
         }
       ]
     };
   }
 
-  if (req.query.estado === "incompletos" && !req.query.busqueda) {
+  if (req.query.status === "incompletos" && !req.query.parameter) {
     console.log("solo incompletos");
     var query = {
-      fecha: { $gte: inicio, $lte: fin },
-      "estilo.incompleto": { $eq: true }
+      date: { $gte: start, $lte: end },
+      "status.incomplete": { $eq: true }
     };
   }
 
-  if (req.query.estado === "vacaciones" && req.query.busqueda) {
+  if (req.query.status === "vacaciones" && req.query.parameter) {
     console.log("consulta vacaciones y busqueda");
     var query = {
       $and: [
-        { fecha: { $gte: inicio, $lte: fin } },
-        { "estilo.vacaciones": { $eq: true } },
+        { date: { $gte: start, $lte: end } },
+        { "status.vacation": { $eq: true } },
         {
           $or: [
             {
-              nombreFuncionario: { $regex: req.query.busqueda, $options: "i" }
+              employeeName: { $regex: req.query.parameter, $options: "i" }
             },
-            { observacion: { $regex: req.query.busqueda, $options: "i" } }
+            { remark: { $regex: req.query.parameter, $options: "i" } }
           ]
         }
       ]
     };
   }
 
-  if (req.query.estado === "vacaciones" && !req.query.busqueda) {
+  if (req.query.status === "vacaciones" && !req.query.parameter) {
     var query = {
-      fecha: { $gte: inicio, $lte: fin },
-      "estilo.vacaciones": { $eq: true }
+      date: { $gte: start, $lte: end },
+      "status.vacation": { $eq: true }
     };
   }
 
-  if (req.query.busqueda && req.query.estado === "todos") {
+  if (req.query.parameter && req.query.status === "todos") {
     console.log("Solo Busqueda");
     var query = {
       $and: [
-        { fecha: { $gte: inicio, $lte: fin } },
+        { date: { $gte: start, $lte: end } },
         {
           $or: [
             {
-              nombreFuncionario: { $regex: req.query.busqueda, $options: "i" }
+              employeeName: { $regex: req.query.parameter, $options: "i" }
             },
-            { observacion: { $regex: req.query.busqueda, $options: "i" } }
+            { remark: { $regex: req.query.parameter, $options: "i" } }
           ]
         }
       ]
@@ -220,18 +216,18 @@ asistenciaRoutes.route("/query-data").get(function(req, res) {
   }
 
   var options = {
-    populate: { path: "funcionario" },
+    populate: { path: "employee" },
     lean: true,
     page: parseInt(req.query.page),
     limit: parseInt(req.query.limit)
   };
-  Asistencia.paginate(query, options).then(result => {
+  Attendance.paginate(query, options).then(result => {
     res.json(result);
   });
 });
 
 // Defined get data(index or listing) route
-asistenciaRoutes.route("/").get(function(req, res) {
+attendanceRoutes.route("/").get(function(req, res) {
   var query = {};
   if (req.query.search) {
     query = { nombre: { $regex: req.query.search, $options: "i" } };
@@ -239,66 +235,45 @@ asistenciaRoutes.route("/").get(function(req, res) {
   console.log("Resultado query", query);
   var options = {
     sort: { nombre: 1 },
-    populate: { path: "funcionario" },
+    populate: { path: "employee" },
     lean: true,
     page: parseInt(req.query.page),
     limit: parseInt(req.query.limit)
   };
-  Asistencia.paginate(query, options).then(result => {
+  Attendance.paginate(query, options).then(result => {
     res.json(result);
   });
-
-  /* var perPage = 10,
-    page = Math.max(0, req.query.page);
-
-  Asistencia.find(query)
-    .limit(perPage)
-    .skip(perPage * page)
-    .populate({
-      path: "sucursal",
-      match: { nombre: "MDL BOX" }
-    })
-    .exec(function(err, asistencias) {
-      if (err) {
-        console.log(err);
-      } else {
-        // asistencias = asistencias.filter(function(asistencia) {
-        //   return asistencia.sucursal != null;
-        // });
-        res.json(asistencias);
-      }
-    });*/
 });
 
 // // Defined edit route
-asistenciaRoutes.route("/edit/:id").get(function(req, res) {
+attendanceRoutes.route("/edit/:id").get(function(req, res) {
   var id = req.params.id;
-  Asistencia.findById(id, function(err, asistencia) {
-    res.json(asistencia);
+  Attendance.findById(id, function(err, attendance) {
+    res.json(attendance);
   });
 });
 
 // //  Defined update route
-asistenciaRoutes.route("/update/:id").put(function(req, res) {
-  Asistencia.findById(req.params.id, function(err, asistencia) {
-    if (!asistencia) return res.status(400).send("unable to get the field");
+attendanceRoutes.route("/update/:id").put(function(req, res) {
+  Attendance.findById(req.params.id, function(err, attendance) {
+    if (!attendance) return res.status(400).send("unable to get the field");
     else {
-      asistencia.fecha = new Date(req.body.fecha);
-      asistencia.entrada = req.body.entrada;
-      asistencia.salida = req.body.salida;
-      asistencia.funcionario = req.body.funcionario;
-      asistencia.nombreFuncionario = req.body.nombreFuncionario;
-      asistencia.horasTrabajadas = req.body.horasTrabajadas;
-      asistencia.horasExtras = req.body.horasExtras;
-      asistencia.horasFaltantes = req.body.horasFaltantes;
-      asistencia.observacion = req.body.observacion;
-      asistencia.estilo.ausente = req.body.estilo.ausente;
-      asistencia.estilo.incompleto = req.body.estilo.incompleto;
-      asistencia.estilo.vacaciones = req.body.estilo.vacaciones;
+      attendance.date = new Date(req.body.date);
+      attendance.attEntry = req.body.attEntry;
+      attendance.attExit = req.body.attExit;
+      attendance.employee = req.body.employee;
+      attendance.employeeName = req.body.employeeName;
+      attendance.workingHours = req.body.workingHours;
+      attendance.extraHours = req.body.extraHours;
+      attendance.delay = req.body.delay;
+      attendance.remark = req.body.remark;
+      attendance.status.absent = req.body.status.absent;
+      attendance.status.incomplete = req.body.status.incomplete;
+      attendance.status.vacation = req.body.status.vacation;
 
-      asistencia
+      attendance
         .save()
-        .then(asistencia => {
+        .then(attendance => {
           res.json("Update complete");
         })
         .catch(err => {
@@ -309,12 +284,12 @@ asistenciaRoutes.route("/update/:id").put(function(req, res) {
 });
 
 //update field hora extra
-asistenciaRoutes.route("/update-overtime/:id").put(function(req, res) {
-  Asistencia.findById(req.params.id, function(err, attendance) {
+attendanceRoutes.route("/update-overtime/:id").put(function(req, res) {
+  Attendance.findById(req.params.id, function(err, attendance) {
     if (!attendance) {
       console.log("error");
     } else {
-      attendance.pagoHoraExtra = true;
+      attendance.payExtraHours = true;
       attendance.save(function(err, attendanceUpdated) {
         if (err) {
           console.log("error");
@@ -326,13 +301,13 @@ asistenciaRoutes.route("/update-overtime/:id").put(function(req, res) {
   });
 });
 
-//update fiel banco de hora
-asistenciaRoutes.route("/update-banktime/:id").put(function(req, res) {
-  Asistencia.findById(req.params.id, function(err, attendance) {
+//update field banco de hora
+attendanceRoutes.route("/update-banktime/:id").put(function(req, res) {
+  Attendance.findById(req.params.id, function(err, attendance) {
     if (!attendance) {
       console.log("error");
     } else {
-      attendance.bancoHora = true;
+      attendance.bankHour = true;
       attendance.save(function(err, attendanceUpdated) {
         if (err) {
           console.log("error");
@@ -345,13 +320,13 @@ asistenciaRoutes.route("/update-banktime/:id").put(function(req, res) {
 });
 
 //Actualizar hora extra from resumen banco de hora
-asistenciaRoutes.route("/cancel-overtime/:id").put(function(req, res) {
+attendanceRoutes.route("/cancel-overtime/:id").put(function(req, res) {
   var query = req.params.id;
   var update = {
-    $set: { horasExtras: null, observacion: "No aceptable para banco de hora" }
+    $set: { extraHours: null, observacion: "No aceptable para banco de hora" }
   };
   var options = { new: true };
-  Asistencia.findByIdAndUpdate(query, update, options, function(
+  Attendance.findByIdAndUpdate(query, update, options, function(
     err,
     attendance
   ) {
@@ -363,16 +338,16 @@ asistenciaRoutes.route("/cancel-overtime/:id").put(function(req, res) {
 });
 
 //compensacion de retraso por banco de hora
-asistenciaRoutes.route("/amend-delay/:id").put(function(req, res) {
+attendanceRoutes.route("/amend-delay/:id").put(function(req, res) {
   var query = req.params.id;
   var update = {
     $set: {
-      horasFaltantes: req.body.horasFaltantes,
-      observacion: "Compensacion de retraso por banco de hora"
+      delay: req.body.delay,
+      remark: "Compensacion de retraso por banco de hora"
     }
   };
   var options = { new: true };
-  Asistencia.findByIdAndUpdate(query, update, options, function(
+  Attendance.findByIdAndUpdate(query, update, options, function(
     err,
     attendanceUpdated
   ) {
@@ -384,12 +359,12 @@ asistenciaRoutes.route("/amend-delay/:id").put(function(req, res) {
 });
 
 //query for dashboard return all delays
-asistenciaRoutes.route("/all-delays").get(function(req, res) {
-  console.log(req.query.inicio, req.query.fin);
-  Asistencia.find(
+attendanceRoutes.route("/all-delays").get(function(req, res) {
+  console.log(req.query.startDate, req.query.endDate);
+  Attendance.find(
     //
-    { fecha: { $gte: req.query.inicio, $lte: req.query.fin } },
-    { horasFaltantes: { $ne: null } },
+    { date: { $gte: req.query.startDate, $lte: req.query.endDate } },
+    { delay: { $ne: null } },
     function(err, attendances) {
       if (err) res.status(400).send(err);
       res.status(200).send(attendances);
@@ -398,25 +373,25 @@ asistenciaRoutes.route("/all-delays").get(function(req, res) {
 });
 
 // // Defined delete | remove | destroy route
-asistenciaRoutes.route("/delete/:id").delete(function(req, res) {
-  Asistencia.findByIdAndRemove({ _id: req.params.id }, function(err, item) {
+attendanceRoutes.route("/delete/:id").delete(function(req, res) {
+  Attendance.findByIdAndRemove({ _id: req.params.id }, function(err, item) {
     if (err) res.json(err);
     else res.json("Successfully removed");
   });
 });
 
-asistenciaRoutes.route("/test-pop").get(function(req, res) {
-  var options = {
-    page: 1,
-    limit: 10
-  };
-  Asistencia.testPop(req.query.search)
-    .paginate({}, options)
-    .then(result => {
-      console.log("paginacion", result);
-      res.json(result);
-    })
-    .catch(e => console.log(e));
-});
+// attendanceRoutes.route("/test-pop").get(function(req, res) {
+//   var options = {
+//     page: 1,
+//     limit: 10
+//   };
+//   Attendance.testPop(req.query.search)
+//     .paginate({}, options)
+//     .then(result => {
+//       console.log("paginacion", result);
+//       res.json(result);
+//     })
+//     .catch(e => console.log(e));
+// });
 
-module.exports = asistenciaRoutes;
+module.exports = attendanceRoutes;

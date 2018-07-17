@@ -2,88 +2,88 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 var mongoosePaginate = require("mongoose-paginate");
 
-var Asistencia = new Schema(
+var Attendance = new Schema(
   {
-    fecha: {
+    date: {
       type: Date,
       required: true
     },
-    entrada: {
+    attEntry: {
       type: String
       //required: true
     },
-    salida: {
+    attExit: {
       type: String
       //required: true
     },
-    funcionario: {
+    employee: {
       type: Schema.Types.ObjectId,
-      ref: "Funcionario",
+      ref: "Employee",
       required: true
     },
-    nombreFuncionario: {
+    employeeName: {
       type: String
     },
-    horasTrabajadas: {
+    workingHours: {
       type: String
     },
-    horasExtras: {
+    extraHours: {
       type: String
     },
-    horasFaltantes: {
+    delay: {
       type: String
     },
-    observacion: {
+    remark: {
       type: String
     },
-    pagoHoraExtra: {
+    payExtraHours: {
       type: Boolean,
       default: false
     },
-    bancoHora: {
+    hourBank: {
       type: Boolean,
       default: false
     },
-    estilo: {
-      ausente: {
+    status: {
+      absent: {
         type: Boolean,
         default: false
       },
-      incompleto: {
+      incomplete: {
         type: Boolean,
         default: false
       },
-      vacaciones: {
+      vacation: {
         type: Boolean,
         default: false
       }
     }
   },
   {
-    collection: "asistencias"
+    collection: "attendances"
   }
 );
-Asistencia.index({ fecha: 1, funcionario: 1 }, { unique: true });
-Asistencia.plugin(mongoosePaginate);
+Attendance.index({ date: 1, employee: 1 }, { unique: true });
+Attendance.plugin(mongoosePaginate);
 
-Asistencia.statics.testPop = function(param) {
-  var asistencia = this;
+Attendance.statics.testPop = function(param) {
+  var attendance = this;
   var result;
 
-  return asistencia
+  return attendance
     .find({})
     .populate({
-      path: "funcionario",
+      path: "employee",
       match: { nombre: { $regex: param, $options: "i" } }
     })
-    .exec(function(err, funcionario) {
+    .exec(function(err, employee) {
       if (err) console.log(err);
 
-      result = funcionario.filter(function(asistencia) {
-        return asistencia.funcionario !== null;
+      result = employee.filter(function(attendance) {
+        return attendance.employee !== null;
       });
       console.log(result);
     });
 };
 
-module.exports = mongoose.model("Asistencia", Asistencia);
+module.exports = mongoose.model("Attendance", Attendance);
