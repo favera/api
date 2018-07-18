@@ -8,11 +8,11 @@ var Attendance = new Schema(
       type: Date,
       required: true
     },
-    attEntry: {
+    entryTime: {
       type: String
       //required: true
     },
-    attExit: {
+    exitTime: {
       type: String
       //required: true
     },

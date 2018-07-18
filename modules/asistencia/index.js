@@ -25,8 +25,8 @@ attendanceRoutes.route("/add").post(function(req, res) {
       //     {
       //       $set: {
       //         employeeName: req.body.employeeName,
-      //         attEntry: req.body.attEntry,
-      //         attExit: req.body.attExit,
+      //         entryTime: req.body.entryTime,
+      //         exitTime: req.body.exitTime,
       //         workingHours: req.body.workingHours,
       //         horasExtras: req.body.horasExtras,
       //         horasFaltantes: req.body.horasFaltantes,
@@ -259,8 +259,8 @@ attendanceRoutes.route("/update/:id").put(function(req, res) {
     if (!attendance) return res.status(400).send("unable to get the field");
     else {
       attendance.date = new Date(req.body.date);
-      attendance.attEntry = req.body.attEntry;
-      attendance.attExit = req.body.attExit;
+      attendance.entryTime = req.body.entryTime;
+      attendance.exitTime = req.body.exitTime;
       attendance.employee = req.body.employee;
       attendance.employeeName = req.body.employeeName;
       attendance.workingHours = req.body.workingHours;
