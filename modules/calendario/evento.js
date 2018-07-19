@@ -4,26 +4,26 @@ var mongoosePaginate = require("mongoose-paginate");
 var moment = require("moment");
 
 // Define collection and schema for Events
-var Evento = new Schema(
+var Event = new Schema(
   {
-    tipoEvento: {
+    eventType: {
       type: String,
       required: true
     },
-    fechaInicio: {
+    startDate: {
       type: Date,
       validate: [
         {
-          validator: function(fechaInicio) {
-            if (!fechaInicio && this.tipoEvento === "vacaciones") {
+          validator: function(startDate) {
+            if (!startDate && this.eventType === "vacaciones") {
               return false;
             }
           },
           message: "El campo es requerido"
         },
         {
-          validator: function(fechaInicio) {
-            if (moment(fechaInicio).isAfter(this.fechaFin)) {
+          validator: function(startDate) {
+            if (moment(startDate).isAfter(this.endDate)) {
               return false;
             }
           },
@@ -31,20 +31,20 @@ var Evento = new Schema(
         }
       ]
     },
-    fechaFin: {
+    endDate: {
       type: Date,
       validate: [
         {
-          validator: function(fechaFin) {
-            if (!fechaFin && this.tipoEvento === "vacaciones") {
+          validator: function(endDate) {
+            if (!endDate && this.eventType === "vacaciones") {
               return false;
             }
           },
           message: "El campo es requerido"
         },
         {
-          validator: function(fechaFin) {
-            if (moment(fechaFin).isBefore(this.fechaInicio)) {
+          validator: function(endDate) {
+            if (moment(endDate).isBefore(this.startDate)) {
               return false;
             }
           },
@@ -52,57 +52,57 @@ var Evento = new Schema(
         }
       ]
     },
-    fechaFeriado: {
+    holidayDate: {
       type: Date,
       index: true,
       unique: true,
       sparse: true,
       validate: {
-        validator: function(valor) {
-          if (!valor && this.tipoEvento === "feriado") {
+        validator: function(value) {
+          if (!value && this.eventType === "feriado") {
             return false;
           }
         },
         message: "El campo es requerido"
       }
     },
-    motivoFeriado: {
+    holidayDescription: {
       type: String,
       validate: {
-        validator: function(valor) {
-          if (!valor && this.tipoEvento === "feriado") {
+        validator: function(value) {
+          if (!value && this.eventType === "feriado") {
             return false;
           }
         },
         message: "El campo es requerido"
       }
     },
-    funcionario: {
+    employee: {
       type: Schema.Types.ObjectId,
-      ref: "Funcionario",
+      ref: "Employee",
       validate: {
-        validator: function(valor) {
-          if (!valor && this.tipoEvento === "vacaciones") {
+        validator: function(value) {
+          if (!value && this.eventType === "vacaciones") {
             return false;
           }
         },
         message: "El campo es requerido"
       }
     },
-    nombreFuncionario: {
+    employeeName: {
       type: String
     },
-    activo: {
+    active: {
       type: Boolean,
       required: true,
       default: true
     }
   },
   {
-    collection: "eventos"
+    collection: "events"
   }
 );
 
-Evento.plugin(mongoosePaginate);
+Event.plugin(mongoosePaginate);
 
-module.exports = mongoose.model("Evento", Evento);
+module.exports = mongoose.model("Event", Event);
