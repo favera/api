@@ -2,7 +2,7 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 var mongoosePaginate = require("mongoose-paginate");
 
-var Salario = new Schema(
+var Payroll = new Schema(
   {
     month: {
       type: Date,
@@ -25,7 +25,7 @@ var Salario = new Schema(
       {
         employee: {
           type: Schema.Types.ObjectId,
-          ref: "Funcionario"
+          ref: "Employee"
           // required: true
         },
         name: {
@@ -40,7 +40,7 @@ var Salario = new Schema(
           type: Number
           // required: true
         },
-        abscence: {
+        absence: {
           type: Number
         },
         salary: {
@@ -94,9 +94,9 @@ var Salario = new Schema(
     ]
   },
   {
-    collection: "salario"
+    collection: "Payroll"
   }
 );
-Salario.index({ month: 1, year: 1 }, { unique: true });
-Salario.plugin(mongoosePaginate);
-module.exports = mongoose.model("Salario", Salario);
+Payroll.index({ month: 1, year: 1 }, { unique: true });
+Payroll.plugin(mongoosePaginate);
+module.exports = mongoose.model("Payroll", Payroll);
