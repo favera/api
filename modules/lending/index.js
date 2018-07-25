@@ -2,13 +2,13 @@ var express = require("express");
 var lendingRoutes = express.Router();
 
 // Require Prestamo model in our routes module
-var Lending = require("./prestamo");
+var Lending = require("./lending");
 
 //Importando Object Id
 var ObjectID = require("mongodb").ObjectID;
 
 // Defined store route
-lendingRoutes.route("/add").post(function(req, res) {
+lendingRoutes.route("/add").post(function (req, res) {
   req.body.amount = parseInt(req.body.amount.split(".").join(""));
   var lending = new Lending(req.body);
   lending
@@ -23,7 +23,7 @@ lendingRoutes.route("/add").post(function(req, res) {
 });
 
 //retornar cuotas por funcionario y mes
-lendingRoutes.route("/employee-lending/:id").get(function(req, res) {
+lendingRoutes.route("/employee-lending/:id").get(function (req, res) {
   var installmentDate, dueDate;
   var result = [];
   dueDate = new Date(req.query.start);
@@ -32,7 +32,7 @@ lendingRoutes.route("/employee-lending/:id").get(function(req, res) {
       employee: new ObjectID(req.params.id),
       "installments.dueDate": { $gte: req.query.start, $lte: req.query.end }
     },
-    function(err, lendings) {
+    function (err, lendings) {
       if (err) res.status(400).send(err);
 
       lendings.forEach(lending => {
@@ -49,7 +49,7 @@ lendingRoutes.route("/employee-lending/:id").get(function(req, res) {
 });
 
 //return loan of period dates
-lendingRoutes.route("/loan-period").get(function(req, res) {
+lendingRoutes.route("/loan-period").get(function (req, res) {
   Lending.find({
     "installments.dueDate": {
       $gte: req.query.startDate,
@@ -63,7 +63,7 @@ lendingRoutes.route("/loan-period").get(function(req, res) {
 });
 
 //return all prestamos
-lendingRoutes.route("/full-list").get(function(req, res) {
+lendingRoutes.route("/full-list").get(function (req, res) {
   Lending.find({})
     .then(result => {
       res.json(result);
@@ -72,7 +72,7 @@ lendingRoutes.route("/full-list").get(function(req, res) {
 });
 
 // Defined get data(index or listing) route
-lendingRoutes.route("/").get(function(req, res) {
+lendingRoutes.route("/").get(function (req, res) {
   var startDate, endDate;
   var query = {};
   if (req.query.startDate !== "null") {
@@ -131,22 +131,22 @@ lendingRoutes.route("/").get(function(req, res) {
 });
 
 // // Defined edit route
-lendingRoutes.route("/edit/:id").get(function(req, res) {
+lendingRoutes.route("/edit/:id").get(function (req, res) {
   var id = req.params.id;
-  Lending.findById(id, function(err, lending) {
+  Lending.findById(id, function (err, lending) {
     res.json(lending);
   });
 });
 //Actualizar prestamos que fueron descontados en la planilla de salarios, en el body se pasa el array de los id de los prestamos
 //actualizado desde Detalle Planilla.
-lendingRoutes.route("/update/lending/processed").put(function(req, res) {
+lendingRoutes.route("/update/lending/processed").put(function (req, res) {
   console.log(req.body);
   var result;
   req.body.forEach(lending => {
     Lending.update(
       { "installments._id": new ObjectID(lending) },
       { $set: { "installments.$.estado": "procesado" } },
-      function(err, updatedLending) {
+      function (err, updatedLending) {
         if (err) {
           console.log(err);
           res.status(400).send("Error updating lendigns");
@@ -161,12 +161,12 @@ lendingRoutes.route("/update/lending/processed").put(function(req, res) {
 });
 
 //Actualizar desde crear planilla
-lendingRoutes.route("/update/lending/paid").put(function(req, res) {
+lendingRoutes.route("/update/lending/paid").put(function (req, res) {
   Lending.update(
     { "installments.state": "procesado" },
     { $set: { "installments.$.state": "pagado" } },
     { multi: true },
-    function(err, updatedItem) {
+    function (err, updatedItem) {
       if (err) res.status(400).send(err);
       res.status(200).send(updatedItem);
     }
@@ -174,8 +174,8 @@ lendingRoutes.route("/update/lending/paid").put(function(req, res) {
 });
 
 // //  Defined update route
-lendingRoutes.route("/update/:id").put(function(req, res) {
-  Lending.findById(req.params.id, function(err, lending) {
+lendingRoutes.route("/update/:id").put(function (req, res) {
+  Lending.findById(req.params.id, function (err, lending) {
     if (!lending) return next(new Error("Could not load Document"));
     else {
       lending.date = new Date(req.body.date);
@@ -199,8 +199,8 @@ lendingRoutes.route("/update/:id").put(function(req, res) {
 });
 
 // // Defined delete | remove | destroy route
-lendingRoutes.route("/delete/:id").delete(function(req, res) {
-  Lending.findByIdAndRemove({ _id: req.params.id }, function(err, item) {
+lendingRoutes.route("/delete/:id").delete(function (req, res) {
+  Lending.findByIdAndRemove({ _id: req.params.id }, function (err, item) {
     if (err) res.status(400).send(err);
     else res.status(200).send("Successfully removed");
   });
