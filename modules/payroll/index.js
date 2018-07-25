@@ -1,9 +1,9 @@
 var express = require("express");
 var payrollRoutes = express.Router();
 
-var Payroll = require("./salario");
-var BankHour = require("./bancoHora");
-var Attendance = require("./../asistencia/asistencia");
+var Payroll = require("./payroll");
+var BankHour = require("./bankHours");
+var Attendance = require("./../attendance/attendance");
 
 //### Periodo de pago de planillas de salarios
 payrollRoutes.route("/add/period").post(function (req, res) {

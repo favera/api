@@ -7,10 +7,10 @@ var ObjectId = require("mongoose").Types.ObjectId;
 var moment = require("moment");
 
 // Require Item model in our routes module
-var Event = require("./evento");
+var Event = require("./event");
 
 // Defined store route
-eventRoutes.route("/add").post(function(req, res) {
+eventRoutes.route("/add").post(function (req, res) {
   //diferencia en dias de las vacaciones (fechaFin - FechaInicio) para que sea positivo
   var diffVacations = moment(req.body.endDate).diff(req.body.startDate, "days");
   var validateVacationsDate;
@@ -18,7 +18,7 @@ eventRoutes.route("/add").post(function(req, res) {
   Event.find({
     employee: ObjectId(req.body.employee),
     active: true
-  }).exec(function(err, employeeEvents) {
+  }).exec(function (err, employeeEvents) {
     if (err) res.status(400).send(err);
     //diferencia en dias de las vacaciones ya existentes (fechaFin - FechaInicio) para que sea positivo
     employeeEvents.forEach(empEvent => {
@@ -81,9 +81,9 @@ eventRoutes.route("/add").post(function(req, res) {
   });
 });
 //retorna las vacaciones del funcionario que se pasa
-eventRoutes.route("/employee-vacation/:id").get(function(req, res) {
+eventRoutes.route("/employee-vacation/:id").get(function (req, res) {
   Event.find({ employee: new ObjectId(req.params.id), active: true }).exec(
-    function(err, vacations) {
+    function (err, vacations) {
       if (err) res.status(400).send(err);
       res.status(200).send(vacations);
     }
@@ -91,7 +91,7 @@ eventRoutes.route("/employee-vacation/:id").get(function(req, res) {
 });
 
 //retorna los feriados anuales
-eventRoutes.route("/holidays").get(function(req, res) {
+eventRoutes.route("/holidays").get(function (req, res) {
   var startDate, endDate;
   if (req.query.startDate && req.query.endDate) {
     startDate = new Date(req.query.startDate);
@@ -99,7 +99,7 @@ eventRoutes.route("/holidays").get(function(req, res) {
   }
   Event.find({
     holidayDate: { $gte: startDate, $lte: endDate }
-  }).exec(function(err, events) {
+  }).exec(function (err, events) {
     if (err) {
       res.status(400).send("Unable to find holidays");
     } else {
@@ -109,7 +109,7 @@ eventRoutes.route("/holidays").get(function(req, res) {
 });
 
 //retorna los feriados y vacaciones del mes actual
-eventRoutes.route("/full-list").get(function(req, res) {
+eventRoutes.route("/full-list").get(function (req, res) {
   var startDate, endDate;
   if (req.query.startDate && req.query.endDate) {
     startDate = new Date(req.query.startDate);
@@ -127,15 +127,15 @@ eventRoutes.route("/full-list").get(function(req, res) {
       { endDate: { $gte: startDate, $lte: endDate } }
     ])
     .populate("employee")
-    .exec(function(err, event) {
+    .exec(function (err, event) {
       if (err) console.log(err);
       else res.json(event);
     });
 });
 
 //Desactivar vacaciones una vez culminadas
-eventRoutes.route("/deactivate-vacation/:id").get(function(req, res) {
-  Event.update({ _id: req.params.id }, { $set: { active: false } }, function(
+eventRoutes.route("/deactivate-vacation/:id").get(function (req, res) {
+  Event.update({ _id: req.params.id }, { $set: { active: false } }, function (
     err,
     event
   ) {
@@ -145,7 +145,7 @@ eventRoutes.route("/deactivate-vacation/:id").get(function(req, res) {
 });
 
 // Listado de Eventos
-eventRoutes.route("/").get(function(req, res) {
+eventRoutes.route("/").get(function (req, res) {
   var query = {};
   if (req.query.eventType) {
     query = { eventType: req.query.eventType };
@@ -172,15 +172,15 @@ eventRoutes.route("/").get(function(req, res) {
 });
 
 // // Defined edit route
-eventRoutes.route("/edit/:id").get(function(req, res) {
+eventRoutes.route("/edit/:id").get(function (req, res) {
   var id = req.params.id;
-  Event.findById(id, function(err, event) {
+  Event.findById(id, function (err, event) {
     res.json(event);
   });
 });
 
 // //  Defined update route
-eventRoutes.route("/update/:id").put(function(req, res) {
+eventRoutes.route("/update/:id").put(function (req, res) {
   if (req.body.eventType === "vacaciones") {
     req.body.startDate = new Date(req.body.startDate);
     req.body.endDate = new Date(req.body.endDate);
@@ -189,7 +189,7 @@ eventRoutes.route("/update/:id").put(function(req, res) {
     //console.log("entro en feriado");
     req.body.holidayDate = new Date(req.body.holidayDate);
   }
-  Event.findById(req.params.id, function(err, event) {
+  Event.findById(req.params.id, function (err, event) {
     if (!event) return res.status(400).send("Unable to find event");
     else {
       event.eventType = req.body.eventType;
@@ -213,8 +213,8 @@ eventRoutes.route("/update/:id").put(function(req, res) {
 });
 
 // // Defined delete | remove | destroy route
-eventRoutes.route("/delete/:id").delete(function(req, res) {
-  Event.findByIdAndRemove({ _id: req.params.id }, function(err, event) {
+eventRoutes.route("/delete/:id").delete(function (req, res) {
+  Event.findByIdAndRemove({ _id: req.params.id }, function (err, event) {
     if (err) res.json(err);
     else res.json("Successfully removed");
   });

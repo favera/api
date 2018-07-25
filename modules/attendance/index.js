@@ -5,7 +5,7 @@ var attendanceRoutes = express.Router();
 var ObjectID = require("mongodb").ObjectID;
 
 // Require Item model in our routes module
-var Attendance = require("./asistencia");
+var Attendance = require("./attendance");
 
 // Defined store route
 attendanceRoutes.route("/add").post(function (req, res) {

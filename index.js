@@ -2,7 +2,6 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var cors = require("cors");
 const _ = require("lodash");
-//var proxy = require('http-proxy-middleware');
 
 var mongoose = require("./config/mongoose");
 
@@ -20,33 +19,31 @@ app.use(
   })
 );
 
-// var sucursal = require("./modules/sucursal/index");
 var auth = require("./midlewares/authenticate");
-var usuarios = require("./modules/usuario/index");
-var test = require("./modules/sucursal/index");
-var funcionario = require("./modules/funcionario/index");
-var evento = require("./modules/calendario/index");
-var asistencia = require("./modules/asistencia/index");
-var adelanto = require("./modules/adelanto/index");
-var prestamo = require("./modules/prestamo/index");
-var Usuario = require("./modules/usuario/usuario");
-var salario = require("./modules/salario/index");
+var users = require("./modules/user/index");
+var subsidiaries = require("./modules/subsidiary/index");
+var employees = require("./modules/employee/index");
+var events = require("./modules/event/index");
+var attendances = require("./modules/attendance/index");
+var advances = require("./modules/advance/index");
+var lendings = require("./modules/lending/index");
+var User = require("./modules/user/user");
+var payroll = require("./modules/payroll/index");
 
-// proxy({target: 'http://chiprx.itaipu:8080', changeOrigin: true})
 
-app.use("/sucursales", auth, test);
-app.use("/funcionarios", auth, funcionario);
-app.use("/eventos", auth, evento);
-app.use("/asistencias", auth, asistencia);
-app.use("/adelantos", auth, adelanto);
-app.use("/prestamos", auth, prestamo);
-app.use("/salarios", auth, salario);
-app.use("/users", usuarios);
+app.use("/subsidiaries", auth, subsidiaries);
+app.use("/employees", auth, employees);
+app.use("/events", auth, events);
+app.use("/attendances", auth, attendances);
+app.use("/advances", auth, advances);
+app.use("/lendings", auth, lendings);
+app.use("/payrolls", auth, payroll);
+app.use("/users", users);
 
 app.post("/users/login", (req, res) => {
   var body = _.pick(req.body, ["email", "password"]);
 
-  Usuario.findByCredentials(body.email, body.password)
+  User.findByCredentials(body.email, body.password)
     .then(user => {
       //res.send(user);
       return user.generateAuthToken().then(token => {
@@ -58,41 +55,7 @@ app.post("/users/login", (req, res) => {
       res.status(400).send();
     });
 });
-// app.use(sucursal);
 
-// var blogSchema = new Schema({
-//   title: String,
-//   author: String
-// });
-
-// var Blog = mongoose.model("Blog", blogSchema);
-
-// app.post("/blogs", (req, res) => {
-//   var blog = new Blog({
-//     title: req.body.title,
-//     author: req.body.author
-//   });
-
-//   blog.save().then(
-//     doc => {
-//       res.send(doc);
-//     },
-//     e => {
-//       res.send(e);
-//     }
-//   );
-// });
-
-// app.get("/blogs", (req, res) => {
-//   Blog.find().then(
-//     blogs => {
-//       res.send({ blogs });
-//     },
-//     e => {
-//       res.status(400).send();
-//     }
-//   );
-// });
 
 app.get("/", (req, res) => {
   res.send("<h1> Hello! <h1/>");

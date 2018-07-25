@@ -4,10 +4,10 @@ var express = require("express");
 var employeeRoutes = express.Router();
 
 // Require Item model in our routes module
-var Employee = require("./funcionario");
+var Employee = require("./employee");
 
 // Defined store route
-employeeRoutes.route("/add").post(function(req, res) {
+employeeRoutes.route("/add").post(function (req, res) {
   var employee = new Employee(req.body);
   employee
     .save()
@@ -20,14 +20,14 @@ employeeRoutes.route("/add").post(function(req, res) {
 });
 
 //return all funcionarios
-employeeRoutes.route("/full-list").get(function(req, res) {
+employeeRoutes.route("/full-list").get(function (req, res) {
   Employee.find({ active: true }).then(result => {
     res.json(result);
   });
 });
 
 // Defined get data(index or listing) route
-employeeRoutes.route("/").get(function(req, res) {
+employeeRoutes.route("/").get(function (req, res) {
   var query = { active: true };
   if (req.query.search && req.query.search !== "null") {
     query = {
@@ -49,16 +49,16 @@ employeeRoutes.route("/").get(function(req, res) {
 });
 
 // // Defined edit route
-employeeRoutes.route("/edit/:id").get(function(req, res) {
+employeeRoutes.route("/edit/:id").get(function (req, res) {
   var id = req.params.id;
-  Employee.findById(id, function(err, employee) {
+  Employee.findById(id, function (err, employee) {
     res.json(employee);
   });
 });
 
 // //  Defined update route
-employeeRoutes.route("/update/:id").put(function(req, res) {
-  Employee.findById(req.params.id, function(err, employee) {
+employeeRoutes.route("/update/:id").put(function (req, res) {
+  Employee.findById(req.params.id, function (err, employee) {
     if (!employee) return next(new Error("Could not load Document"));
     else {
       employee.name = req.body.name;
@@ -87,8 +87,8 @@ employeeRoutes.route("/update/:id").put(function(req, res) {
 });
 
 //deactivate employee
-employeeRoutes.route("/deactivate/:id").put(function(req, res) {
-  Employee.update({ _id: req.params.id }, { $set: { active: false } }, function(
+employeeRoutes.route("/deactivate/:id").put(function (req, res) {
+  Employee.update({ _id: req.params.id }, { $set: { active: false } }, function (
     err,
     employee
   ) {
@@ -98,8 +98,8 @@ employeeRoutes.route("/deactivate/:id").put(function(req, res) {
   });
 });
 
-employeeRoutes.route("/update-vacation/:id").put(function(req, res) {
-  Employee.findById(req.params.id, function(err, employee) {
+employeeRoutes.route("/update-vacation/:id").put(function (req, res) {
+  Employee.findById(req.params.id, function (err, employee) {
     if (err || !employee) res.status(400).send(err);
     if (!req.body.active) {
       var index = employee.vacations.indexOf(req.body.vacations);
