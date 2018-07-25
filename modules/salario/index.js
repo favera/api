@@ -77,8 +77,7 @@ payrollRoutes.route("/add/detail/:id").put(function (req, res) {
 });
 
 //###Banco de Hora###
-
-payrollRoutes.route("/add/banco-hora/:id").post(function (req, res) {
+payrollRoutes.route("/add/bank-hour/:id").post(function (req, res) {
   var query = { employee: req.params.id };
   var update = {
     $inc: {
@@ -99,7 +98,7 @@ payrollRoutes.route("/add/banco-hora/:id").post(function (req, res) {
   });
 });
 
-payrollRoutes.route("/banco-hora/:id").get(function (req, res) {
+payrollRoutes.route("/bank-hour/:id").get(function (req, res) {
   BankHour.find({ employee: req.params.id })
     .then(response => {
       res.status(200).send(response);

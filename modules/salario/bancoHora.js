@@ -1,11 +1,11 @@
 var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
-var BancoHoras = new Schema(
+var BankHour = new Schema(
   {
-    funcionario: {
+    employee: {
       type: Schema.Types.ObjectId,
-      ref: "Funcionario",
+      ref: "Employee",
       required: true
     },
     hours: {
@@ -22,18 +22,8 @@ var BancoHoras = new Schema(
     }
   },
   {
-    collection: "banco_horas"
+    collection: "bank_hours"
   }
 );
 
-// BancoHoras.post("findOneAndUpdate", function(next) {
-//   var bancHora = this.getUpdate();
-//   console.log("Primera impresion", bancHora.totalMinutes, this.funcionario);
-//   bancHora.hours = Math.floor(bancHora.totalMinutes / 60);
-//   console.log(bancHora.hours);
-//   bancHora.minutes = Math.floor(bancHora.totalMinutes % 60);
-//   console.log(bancHora.minutes);
-//   next();
-// });
-
-module.exports = mongoose.model("bancoHoras", BancoHoras);
+module.exports = mongoose.model("bankHours", BankHour);
