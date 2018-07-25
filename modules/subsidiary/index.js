@@ -2,11 +2,11 @@ var express = require("express");
 var subsidiaryRoutes = express.Router();
 
 // Require Item model in our routes module
-var Subsidiary = require("./sucursal");
-var Employee = require("../funcionario/funcionario");
+var Subsidiary = require("./subsidiary");
+var Employee = require("../employee/employee");
 
 // Defined store route
-subsidiaryRoutes.route("/add").post(function(req, res) {
+subsidiaryRoutes.route("/add").post(function (req, res) {
   var subsidiary = new Subsidiary(req.body);
   subsidiary
     .save()
@@ -19,8 +19,8 @@ subsidiaryRoutes.route("/add").post(function(req, res) {
 });
 
 // Defined get data(index or listing) route
-subsidiaryRoutes.route("/").get(function(req, res) {
-  Subsidiary.find({ active: true }, function(err, subsidiary) {
+subsidiaryRoutes.route("/").get(function (req, res) {
+  Subsidiary.find({ active: true }, function (err, subsidiary) {
     if (err) {
       console.log(err);
     } else {
@@ -30,16 +30,16 @@ subsidiaryRoutes.route("/").get(function(req, res) {
 });
 
 // // Defined edit route
-subsidiaryRoutes.route("/edit/:id").get(function(req, res) {
+subsidiaryRoutes.route("/edit/:id").get(function (req, res) {
   var id = req.params.id;
-  Subsidiary.findById(id, function(err, subsidiary) {
+  Subsidiary.findById(id, function (err, subsidiary) {
     res.json(subsidiary);
   });
 });
 
 // //  Defined update route
-subsidiaryRoutes.route("/update/:id").put(function(req, res) {
-  Subsidiary.findById(req.params.id, function(err, subsidiary) {
+subsidiaryRoutes.route("/update/:id").put(function (req, res) {
+  Subsidiary.findById(req.params.id, function (err, subsidiary) {
     if (!subsidiary) return next(new Error("Could not load Document"));
     else {
       subsidiary.name = req.body.nombre;
@@ -60,9 +60,9 @@ subsidiaryRoutes.route("/update/:id").put(function(req, res) {
 });
 
 // // Defined delete | remove | destroy route
-subsidiaryRoutes.route("/delete/:id").delete(function(req, res) {
+subsidiaryRoutes.route("/delete/:id").delete(function (req, res) {
   var subsidiaries = [];
-  Employee.distinct("subsidiary", function(err, response) {
+  Employee.distinct("subsidiary", function (err, response) {
     console.log(response);
     subsidiaries = response;
 
@@ -74,7 +74,7 @@ subsidiaryRoutes.route("/delete/:id").delete(function(req, res) {
     console.log("Resultado", allowDelete);
 
     if (allowDelete === -1) {
-      Subsidiary.findByIdAndRemove({ _id: req.params.id }, function(
+      Subsidiary.findByIdAndRemove({ _id: req.params.id }, function (
         err,
         subsidiaryRemoved
       ) {
@@ -82,7 +82,7 @@ subsidiaryRoutes.route("/delete/:id").delete(function(req, res) {
         else res.status(200).send("Successfully removed");
       });
     } else {
-      Employee.find({ sucursal: req.params.id, activo: true }, function(
+      Employee.find({ sucursal: req.params.id, activo: true }, function (
         err,
         employees
       ) {
@@ -98,7 +98,7 @@ subsidiaryRoutes.route("/delete/:id").delete(function(req, res) {
           Subsidiary.update(
             { _id: req.params.id },
             { $set: { activo: false } },
-            function(err, subsidiary) {
+            function (err, subsidiary) {
               if (err) return res.status(400).send;
 
               res.status(200).send("Updated susscesfully");
