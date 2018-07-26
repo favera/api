@@ -42,7 +42,7 @@ subsidiaryRoutes.route("/update/:id").put(function (req, res) {
   Subsidiary.findById(req.params.id, function (err, subsidiary) {
     if (!subsidiary) return next(new Error("Could not load Document"));
     else {
-      subsidiary.name = req.body.nombre;
+      subsidiary.name = req.body.name;
       subsidiary.startingTime = req.body.startingTime;
       subsidiary.endTime = req.body.endTime;
       subsidiary.phone = req.body.phone;
@@ -53,7 +53,7 @@ subsidiaryRoutes.route("/update/:id").put(function (req, res) {
           res.json("Update complete");
         })
         .catch(err => {
-          res.status(400).send("unable to update the database");
+          res.status(400).send(err);
         });
     }
   });
@@ -99,7 +99,7 @@ subsidiaryRoutes.route("/delete/:id").delete(function (req, res) {
             { _id: req.params.id },
             { $set: { activo: false } },
             function (err, subsidiary) {
-              if (err) return res.status(400).send;
+              if (err) return res.status(400).send(err);
 
               res.status(200).send("Updated susscesfully");
             }
