@@ -94,7 +94,7 @@ var Payroll = new Schema(
     ]
   },
   {
-    collection: "Payroll"
+    collection: "payroll"
   }
 );
 Payroll.index({ month: 1, year: 1 }, { unique: true });
