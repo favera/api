@@ -59,7 +59,7 @@ employeeRoutes.route("/edit/:id").get(function (req, res) {
 // //  Defined update route
 employeeRoutes.route("/update/:id").put(function (req, res) {
   Employee.findById(req.params.id, function (err, employee) {
-    if (!employee) return next(new Error("Could not load Document"));
+    if (!employee) res.status(404).send("employee not found!");
     else {
       employee.name = req.body.name;
       employee.acnro = req.body.acnro;

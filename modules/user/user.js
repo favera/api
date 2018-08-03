@@ -40,7 +40,7 @@ var User = new Schema({
     //   salt: String
 },
     {
-        collection: "usuarios"
+        collection: "users"
     });
 
 User.methods.toJSON = function () {

@@ -1,9 +1,9 @@
-var Usuario = require("./../modules/user/user");
+var User = require("./../modules/user/user");
 
-var authenticate = function(req, res, next) {
+var authenticate = function (req, res, next) {
   var token = req.header("x-auth");
 
-  Usuario.findByToken(token)
+  User.findByToken(token)
     .then(user => {
       if (!user) {
         return Promise.reject();

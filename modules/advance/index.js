@@ -109,7 +109,7 @@ advanceRoutes.route("/edit/:id").get(function (req, res) {
 // //  Defined update route
 advanceRoutes.route("/update/:id").put(function (req, res) {
   Advance.findById(req.params.id, function (err, advance) {
-    if (!advance) return next(new Error("Could not load Document"));
+    if (!advance) res.status(404).send("Advance not found!");
     else {
       advance.date = new Date(req.body.date);
       advance.advanceType = req.body.advanceType;

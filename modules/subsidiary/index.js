@@ -40,7 +40,7 @@ subsidiaryRoutes.route("/edit/:id").get(function (req, res) {
 // //  Defined update route
 subsidiaryRoutes.route("/update/:id").put(function (req, res) {
   Subsidiary.findById(req.params.id, function (err, subsidiary) {
-    if (!subsidiary) return next(new Error("Could not load Document"));
+    if (!subsidiary) res.status(404).send("Subsidiary not found!");
     else {
       subsidiary.name = req.body.name;
       subsidiary.startingTime = req.body.startingTime;
