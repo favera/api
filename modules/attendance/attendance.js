@@ -45,7 +45,7 @@ var Attendance = new Schema(
       default: false
     },
     status: {
-      absent: {
+      absence: {
         type: Boolean,
         default: false
       },

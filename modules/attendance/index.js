@@ -126,7 +126,7 @@ attendanceRoutes.route("/query-data").get(function (req, res) {
     var query = {
       $and: [
         { date: { $gte: start, $lte: end } },
-        { "status.absent": { $eq: true } },
+        { "status.absence": { $eq: true } },
         {
           $or: [
             {
@@ -143,7 +143,7 @@ attendanceRoutes.route("/query-data").get(function (req, res) {
     console.log("solo ausentes");
     var query = {
       date: { $gte: start, $lte: end },
-      "status.absent": { $eq: true }
+      "status.absence": { $eq: true }
     };
   }
 
@@ -267,7 +267,7 @@ attendanceRoutes.route("/update/:id").put(function (req, res) {
       attendance.extraHours = req.body.extraHours;
       attendance.delay = req.body.delay;
       attendance.remark = req.body.remark;
-      attendance.status.absent = req.body.status.absent;
+      attendance.status.absence = req.body.status.absence;
       attendance.status.incomplete = req.body.status.incomplete;
       attendance.status.vacation = req.body.status.vacation;
 
