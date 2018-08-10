@@ -31,12 +31,12 @@ employeeRoutes.route("/correct-salary").get(function(req, res) {
         item.salary = item.salary.split(".").join("");
         console.log(item.salary);
         Employee.findById(item._id, function(err, employee) {
-          if (err) console.log(err);
-          console.log(employee);
+          if (err) console.log("error" + err);
+          console.log("Empleado" + employee);
           employee.set({ salary: item.salary });
           employee.save(function(err, updatedEmployee) {
             if (err) console.log(err);
-            console.log(updatedEmployee);
+            console.log("actualizado", updatedEmployee);
           });
         });
       }
