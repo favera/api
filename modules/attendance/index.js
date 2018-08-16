@@ -8,7 +8,7 @@ var ObjectID = require("mongodb").ObjectID;
 var Attendance = require("./attendance");
 
 // Defined store route
-attendanceRoutes.route("/add").post(function (req, res) {
+attendanceRoutes.route("/add").post(function(req, res) {
   var attendance = new Attendance(req.body);
 
   attendance
@@ -38,7 +38,7 @@ attendanceRoutes.route("/add").post(function (req, res) {
       //     function(err, asistenciaUpdated) {
       //       if (err) console.log(err);
       //       console.log(asistenciaUpdated);
-      //       res
+      //       res/
       //         .status(200)
       //         .json({ asistenciaUpdated: "Actualizado con exito" });
       //     }
@@ -51,31 +51,81 @@ attendanceRoutes.route("/add").post(function (req, res) {
 });
 
 // Defined store route
-attendanceRoutes.route("/add-data").post(function (req, res) {
+attendanceRoutes.route("/add-data").post(function(req, res) {
   console.log(req.body);
   console.log("END BODY");
+  const bulkAttendances = Attendance.collection.initializeUnorderedBulkOp();
 
-  var attendances = [];
-  req.body.forEach(element => {
-    if (element.date) {
-      element.date = new Date(element.date);
-      console.log(element);
-      attendances.push(element);
-    }
+  req.body.forEach(att => {
+    att.date = new Date(att.date);
+    bulkAttendances
+      .find({ _id: ObjectID(att._id) })
+      .upsert()
+      .replaceOne(att);
   });
 
-  console.log(JSON.stringify(attendances));
-  Attendance.insertMany(attendances)
-    .then(docs => {
-      attendances.length = 0;
-      console.log("Response?", docs);
-      res.status(200).json({ item: "Item added successfully" });
+  bulkAttendances
+    .execute()
+    .then(response => {
+      // console.log(response);
     })
-    .catch(e => console.log("Error", e));
+    .catch(err => console.log(err));
+
+  // var attendances = [];
+
+  // req.body.forEach(att => {
+  //   attendances.push({
+  //     updateOne: {
+  //       filter: { _id: ObjectID(att._id) },
+  //       update: {
+  //         $set: {
+  //           date: new Date(att.date),
+  //           entryTime: att.entryTime,
+  //           exitTime: att.exitTime,
+  //           employee: att.employee,
+  //           employeeName: att.employeeName,
+  //           workingHours: att.workingHours,
+  //           extraHours: att.extraHours,
+  //           delay: att.delay,
+  //           remark: att.remark,
+  //           "status.absence": att.status.absence,
+  //           "status.incomplete": att.status.incomplete,
+  //           "status.vacation": att.status.vacation
+  //         }
+  //       },
+  //       upsert: true
+  //     }
+  //   });
+  // });
+
+  // Attendance.collection
+  //   .bulkWrite(attendances, { ordered: false })
+  //   .then(response => {
+  //     res.status(200).send("Data add succesfully");
+  //   })
+  //   .catch(err => console.log(err));
+
+  // var attendances = [];
+  // req.body.forEach(element => {
+  //   if (element.date) {
+  //     element.date = new Date(element.date);
+  //     console.log(element);
+  //     attendances.push(element);
+  //   }
+  // });
+
+  // // console.log(JSON.stringify(attendances));
+  // Attendance.insertMany(attendances)
+  //   .then(docs => {
+  //     attendances.length = 0;
+  //     console.log("Response?", docs);
+  //     res.status(200).json({ item: "Item added successfully" });
+  //   })
+  //   .catch(e => console.log("Error", e));
 });
 
 //return all asistencias
-attendanceRoutes.route("/full-list").get(function (req, res) {
+attendanceRoutes.route("/full-list").get(function(req, res) {
   var start, end;
   console.log(req.query.startDate, req.query.endDate);
   if (req.query.startDate && req.query.endDate) {
@@ -90,7 +140,7 @@ attendanceRoutes.route("/full-list").get(function (req, res) {
   }
 
   Attendance.find({
-    date: { $gte: req.query.startDate, $lte: req.query.endDate }
+    date: { $gte: start, $lte: end }
   })
     .populate("employee")
     .then(result => {
@@ -99,7 +149,7 @@ attendanceRoutes.route("/full-list").get(function (req, res) {
     .catch(e => console.log(e));
 });
 
-attendanceRoutes.route("/query-data").get(function (req, res) {
+attendanceRoutes.route("/query-data").get(function(req, res) {
   var start, end;
   if (req.query.startDate) {
     start = new Date(req.query.startDate);
@@ -227,7 +277,7 @@ attendanceRoutes.route("/query-data").get(function (req, res) {
 });
 
 // Defined get data(index or listing) route
-attendanceRoutes.route("/").get(function (req, res) {
+attendanceRoutes.route("/").get(function(req, res) {
   var query = {};
   if (req.query.search) {
     query = { nombre: { $regex: req.query.search, $options: "i" } };
@@ -246,16 +296,16 @@ attendanceRoutes.route("/").get(function (req, res) {
 });
 
 // // Defined edit route
-attendanceRoutes.route("/edit/:id").get(function (req, res) {
+attendanceRoutes.route("/edit/:id").get(function(req, res) {
   var id = req.params.id;
-  Attendance.findById(id, function (err, attendance) {
+  Attendance.findById(id, function(err, attendance) {
     res.json(attendance);
   });
 });
 
 // //  Defined update route
-attendanceRoutes.route("/update/:id").put(function (req, res) {
-  Attendance.findById(req.params.id, function (err, attendance) {
+attendanceRoutes.route("/update/:id").put(function(req, res) {
+  Attendance.findById(req.params.id, function(err, attendance) {
     if (!attendance) return res.status(400).send("unable to get the field");
     else {
       attendance.date = new Date(req.body.date);
@@ -284,13 +334,13 @@ attendanceRoutes.route("/update/:id").put(function (req, res) {
 });
 
 //update field hora extra
-attendanceRoutes.route("/update-overtime/:id").put(function (req, res) {
-  Attendance.findById(req.params.id, function (err, attendance) {
+attendanceRoutes.route("/update-overtime/:id").put(function(req, res) {
+  Attendance.findById(req.params.id, function(err, attendance) {
     if (!attendance) {
       console.log("error");
     } else {
       attendance.payExtraHours = true;
-      attendance.save(function (err, attendanceUpdated) {
+      attendance.save(function(err, attendanceUpdated) {
         if (err) {
           console.log("error");
         }
@@ -302,13 +352,13 @@ attendanceRoutes.route("/update-overtime/:id").put(function (req, res) {
 });
 
 //update field banco de hora
-attendanceRoutes.route("/update-banktime/:id").put(function (req, res) {
-  Attendance.findById(req.params.id, function (err, attendance) {
+attendanceRoutes.route("/update-banktime/:id").put(function(req, res) {
+  Attendance.findById(req.params.id, function(err, attendance) {
     if (!attendance) {
       console.log("error");
     } else {
       attendance.bankHour = true;
-      attendance.save(function (err, attendanceUpdated) {
+      attendance.save(function(err, attendanceUpdated) {
         if (err) {
           console.log("error");
         }
@@ -320,13 +370,13 @@ attendanceRoutes.route("/update-banktime/:id").put(function (req, res) {
 });
 
 //Actualizar hora extra from resumen banco de hora
-attendanceRoutes.route("/cancel-overtime/:id").put(function (req, res) {
+attendanceRoutes.route("/cancel-overtime/:id").put(function(req, res) {
   var query = req.params.id;
   var update = {
     $set: { extraHours: null, observacion: "No aceptable para banco de hora" }
   };
   var options = { new: true };
-  Attendance.findByIdAndUpdate(query, update, options, function (
+  Attendance.findByIdAndUpdate(query, update, options, function(
     err,
     attendance
   ) {
@@ -338,7 +388,7 @@ attendanceRoutes.route("/cancel-overtime/:id").put(function (req, res) {
 });
 
 //compensacion de retraso por banco de hora
-attendanceRoutes.route("/amend-delay/:id").put(function (req, res) {
+attendanceRoutes.route("/amend-delay/:id").put(function(req, res) {
   var query = req.params.id;
   var update = {
     $set: {
@@ -347,7 +397,7 @@ attendanceRoutes.route("/amend-delay/:id").put(function (req, res) {
     }
   };
   var options = { new: true };
-  Attendance.findByIdAndUpdate(query, update, options, function (
+  Attendance.findByIdAndUpdate(query, update, options, function(
     err,
     attendanceUpdated
   ) {
@@ -359,13 +409,13 @@ attendanceRoutes.route("/amend-delay/:id").put(function (req, res) {
 });
 
 //query for dashboard return all delays
-attendanceRoutes.route("/all-delays").get(function (req, res) {
+attendanceRoutes.route("/all-delays").get(function(req, res) {
   console.log(req.query.startDate, req.query.endDate);
   Attendance.find(
     //
     { date: { $gte: req.query.startDate, $lte: req.query.endDate } },
     { delay: { $ne: null } },
-    function (err, attendances) {
+    function(err, attendances) {
       if (err) res.status(400).send(err);
       res.status(200).send(attendances);
     }
@@ -373,8 +423,8 @@ attendanceRoutes.route("/all-delays").get(function (req, res) {
 });
 
 // // Defined delete | remove | destroy route
-attendanceRoutes.route("/delete/:id").delete(function (req, res) {
-  Attendance.findByIdAndRemove({ _id: req.params.id }, function (err, item) {
+attendanceRoutes.route("/delete/:id").delete(function(req, res) {
+  Attendance.findByIdAndRemove({ _id: req.params.id }, function(err, item) {
     if (err) res.json(err);
     else res.json("Successfully removed");
   });
