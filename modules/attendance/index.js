@@ -63,51 +63,56 @@ attendanceRoutes.route("/add-data").post(function(req, res) {
   })
     .populate("employee")
     .then(result => {
-      // console.log("Busqueda de la fecha resultado", result);
       attOfDate = result;
-      console.log("LENGHT", attOfDate.length);
       var last = attOfDate.length;
-      console.log("ULTIMO REGISTRO", attOfDate[last - 1]);
 
-      console.log("LENGHT FUERA", attOfDate.length);
       if (attOfDate.length > 0) {
         console.log("LENGHT MAYOR A CERO");
-        req.body.forEach(attBody => {
-          var index = attOfDate.findIndex(attDate => {
-            if (attDate.employee._id === attBody.employee) {
+        attOfDate.forEach(attDate => {
+          var indexAtt = req.body.findIndex((attBody, index) => {
+            console.log(
+              "ID",
+              attDate.employee._id,
+              " SIN ID",
+              attBody.employee
+            );
+            if (attDate.employee._id == attBody.employee) {
+              console.log("entro en esta condicion");
               id = attDate._id;
-              return;
+              return index;
             }
-            return;
+            // return false;
           });
-          console.log("INDICE", index);
-          if (index !== -1) {
-            req.body[index]._id = id;
+          console.log("INDICE", indexAtt);
+          if (indexAtt !== -1) {
+            req.body[indexAtt]._id = id;
           }
         });
       }
+
+      // console.log("Despues del tema", req.body);
+
+      const bulkAttendances = Attendance.collection.initializeUnorderedBulkOp();
+
+      req.body.forEach(att => {
+        if (typeof att.date === "string") {
+          att.date = new Date(att.date);
+        }
+        bulkAttendances
+          .find({ _id: ObjectID(att._id) })
+          .upsert()
+          .updateOne(att);
+      });
+
+      bulkAttendances
+        .execute()
+        .then(response => {
+          res.status(200).send("Items add sucessfully");
+          // console.log(response);
+        })
+        .catch(err => res.status(400).send(err));
     })
     .catch(e => console.log(e));
-
-  const bulkAttendances = Attendance.collection.initializeUnorderedBulkOp();
-
-  req.body.forEach(att => {
-    if (typeof att.date === "string") {
-      att.date = new Date(att.date);
-    }
-    bulkAttendances
-      .find({ _id: ObjectID(att._id) })
-      .upsert()
-      .updateOne(att);
-  });
-
-  bulkAttendances
-    .execute()
-    .then(response => {
-      res.status(200).send("Items add sucessfully");
-      // console.log(response);
-    })
-    .catch(err => res.status(400).send(err));
 
   // var attendances = [];
 
