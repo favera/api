@@ -1,6 +1,6 @@
 var User = require("./../modules/user/user");
 
-var authenticate = function (req, res, next) {
+var authenticate = function(req, res, next) {
   var token = req.header("x-auth");
 
   User.findByToken(token)
@@ -8,7 +8,7 @@ var authenticate = function (req, res, next) {
       if (!user) {
         return Promise.reject();
       }
-      console.log("User from findbytoken", req.user);
+      // console.log("User from findbytoken", req.user);
       req.user = user;
       req.token = token;
       next();

@@ -30,7 +30,6 @@ var lendings = require("./modules/lending/index");
 var User = require("./modules/user/user");
 var payroll = require("./modules/payroll/index");
 
-
 app.use("/subsidiaries", auth, subsidiaries);
 app.use("/employees", auth, employees);
 app.use("/events", auth, events);
@@ -47,7 +46,7 @@ app.post("/users/login", (req, res) => {
     .then(user => {
       //res.send(user);
       return user.generateAuthToken().then(token => {
-        console.log(token);
+        // console.log(token);
         res.header("x-auth", token).send(user);
       });
     })
@@ -55,7 +54,6 @@ app.post("/users/login", (req, res) => {
       res.status(400).send();
     });
 });
-
 
 app.get("/", (req, res) => {
   res.send("<h1> Hello! <h1/>");

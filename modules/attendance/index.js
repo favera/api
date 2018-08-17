@@ -52,24 +52,62 @@ attendanceRoutes.route("/add").post(function(req, res) {
 
 // Defined store route
 attendanceRoutes.route("/add-data").post(function(req, res) {
-  console.log(req.body);
-  console.log("END BODY");
+  // console.log(req.body);
+  // console.log("END BODY");
+  var dateAttSheet = req.body[0].date;
+  var id;
+  console.log("FECHA", dateAttSheet);
+  let attOfDate = [];
+  Attendance.find({
+    date: { $gte: dateAttSheet, $lte: dateAttSheet }
+  })
+    .populate("employee")
+    .then(result => {
+      // console.log("Busqueda de la fecha resultado", result);
+      attOfDate = result;
+      console.log("LENGHT", attOfDate.length);
+      var last = attOfDate.length;
+      console.log("ULTIMO REGISTRO", attOfDate[last - 1]);
+
+      console.log("LENGHT FUERA", attOfDate.length);
+      if (attOfDate.length > 0) {
+        console.log("LENGHT MAYOR A CERO");
+        req.body.forEach(attBody => {
+          var index = attOfDate.findIndex(attDate => {
+            if (attDate.employee._id === attBody.employee) {
+              id = attDate._id;
+              return;
+            }
+            return;
+          });
+          console.log("INDICE", index);
+          if (index !== -1) {
+            req.body[index]._id = id;
+          }
+        });
+      }
+    })
+    .catch(e => console.log(e));
+
   const bulkAttendances = Attendance.collection.initializeUnorderedBulkOp();
 
   req.body.forEach(att => {
-    att.date = new Date(att.date);
+    if (typeof att.date === "string") {
+      att.date = new Date(att.date);
+    }
     bulkAttendances
       .find({ _id: ObjectID(att._id) })
       .upsert()
-      .replaceOne(att);
+      .updateOne(att);
   });
 
   bulkAttendances
     .execute()
     .then(response => {
+      res.status(200).send("Items add sucessfully");
       // console.log(response);
     })
-    .catch(err => console.log(err));
+    .catch(err => res.status(400).send(err));
 
   // var attendances = [];
 
@@ -79,6 +117,20 @@ attendanceRoutes.route("/add-data").post(function(req, res) {
   //       filter: { _id: ObjectID(att._id) },
   //       update: {
   //         $set: {
+  //           // date: new Date(att.date),
+  //           entryTime: att.entryTime,
+  //           exitTime: att.exitTime,
+  //           employee: att.employee,
+  //           employeeName: att.employeeName,
+  //           workingHours: att.workingHours,
+  //           extraHours: att.extraHours,
+  //           delay: att.delay,
+  //           remark: att.remark,
+  //           "status.absence": att.status.absence,
+  //           "status.incomplete": att.status.incomplete,
+  //           "status.vacation": att.status.vacation
+  //         },
+  //         $setOnInsert: {
   //           date: new Date(att.date),
   //           entryTime: att.entryTime,
   //           exitTime: att.exitTime,
@@ -103,7 +155,7 @@ attendanceRoutes.route("/add-data").post(function(req, res) {
   //   .then(response => {
   //     res.status(200).send("Data add succesfully");
   //   })
-  //   .catch(err => console.log(err));
+  //   .catch(err => res.status(400).send(err));
 
   // var attendances = [];
   // req.body.forEach(element => {

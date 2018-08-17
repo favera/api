@@ -63,7 +63,7 @@ var Attendance = new Schema(
     collection: "attendances"
   }
 );
-Attendance.index({ date: 1, employee: 1 }, { unique: true });
+// Attendance.index({ date: 1, employee: 1 }, { unique: true });
 Attendance.plugin(mongoosePaginate);
 
 Attendance.statics.testPop = function(param) {

@@ -5,130 +5,135 @@ const jwt = require("jsonwebtoken");
 const _ = require("lodash");
 var Schema = mongoose.Schema;
 
-var User = new Schema({
+var User = new Schema(
+  {
     email: {
-        type: String,
-        unique: true,
-        required: true,
-        trim: true,
-        minlength: 1,
-        validate: {
-            validator: validator.isEmail,
-            message: "Is not a valid Email"
-        }
+      type: String,
+      unique: true,
+      required: true,
+      trim: true,
+      minlength: 1,
+      validate: {
+        validator: validator.isEmail,
+        message: "Is not a valid Email"
+      }
     },
     password: {
-        type: String,
-        required: true,
-        minlength: 6
+      type: String,
+      required: true,
+      minlength: 6
     },
-    tokens: [{
+    tokens: [
+      {
         access: {
-            type: String,
-            required: true
+          type: String,
+          required: true
         },
         token: {
-            type: String,
-            required: true
+          type: String,
+          required: true
         }
-    }],
+      }
+    ]
     //   nombre: {
     //     type: String,
     //     required: true
     //   },
     //   hash: String,
     //   salt: String
-},
-    {
-        collection: "users"
+  },
+  {
+    collection: "users"
+  }
+);
+
+User.methods.toJSON = function() {
+  var user = this;
+  var userObject = user.toObject();
+
+  return _.pick(userObject, ["_id", "email"]);
+};
+
+User.methods.generateAuthToken = function() {
+  var user = this;
+  var access = "auth";
+  var token = jwt
+    .sign({ _id: user._id.toHexString(), access }, "abc123")
+    .toString();
+  user.tokens = user.tokens.concat([{ access, token }]);
+
+  return user.save().then(() => {
+    return token;
+  });
+};
+
+User.pre("save", function(next) {
+  var user = this;
+
+  if (user.isModified("password")) {
+    bcrypt.genSalt(10, function(err, salt) {
+      bcrypt.hash(user.password, salt, function(err, hash) {
+        if (err) console.log(err);
+        user.password = hash;
+        next();
+      });
     });
+  } else {
+    next();
+  }
+});
 
-User.methods.toJSON = function () {
-    var user = this;
-    var userObject = user.toObject();
+User.statics.findByToken = function(token) {
+  var User = this;
+  var decoded, queryUser;
 
-    return _.pick(userObject, ['_id', 'email'])
-}
+  try {
+    decoded = jwt.verify(token, "abc123");
+  } catch (error) {
+    //retorna un promise para que no ejecute el codigo del queryUser
+    return Promise.reject();
+  }
+  // console.log("Busquedas", decoded._id, token);
+  queryUser = User.findOne({
+    _id: decoded._id,
+    "tokens.token": token,
+    "tokens.access": "auth"
+  });
 
-User.methods.generateAuthToken = function () {
-    var user = this;
-    var access = 'auth';
-    var token = jwt.sign({ _id: user._id.toHexString(), access }, 'abc123').toString();
-    user.tokens = user.tokens.concat([{ access, token }]);
+  return queryUser;
+};
 
-    return user.save().then(() => {
-        return token;
-    });
-}
+User.statics.findByCredentials = function(email, password) {
+  var User = this;
 
-User.pre("save", function (next) {
-    var user = this;
-
-    if (user.isModified("password")) {
-        bcrypt.genSalt(10, function (err, salt) {
-            bcrypt.hash(user.password, salt, function (err, hash) {
-                if (err) console.log(err);
-                user.password = hash;
-                next();
-            });
-        });
-
-    } else {
-        next()
+  return User.findOne({ email: email }).then(user => {
+    if (!user) {
+      return Promise.reject();
     }
-})
 
-User.statics.findByToken = function (token) {
-    var User = this;
-    var decoded, queryUser;
-
-    try {
-        decoded = jwt.verify(token, "abc123");
-    } catch (error) {
-        //retorna un promise para que no ejecute el codigo del queryUser
-        return Promise.reject();
-    }
-    console.log("Busquedas", decoded._id, token);
-    queryUser = User.findOne({
-        "_id": decoded._id,
-        "tokens.token": token,
-        "tokens.access": "auth"
+    return new Promise((resolve, reject) => {
+      bcrypt.compare(password, user.password, (err, res) => {
+        if (res) {
+          resolve(user);
+        } else {
+          reject();
+        }
+      });
     });
+  });
+};
 
-    return queryUser
-}
-
-User.statics.findByCredentials = function (email, password) {
-    var User = this;
-
-    return User.findOne({ email: email }).then(user => {
-        if (!user) {
-            return Promise.reject();
-        }
-
-        return new Promise((resolve, reject) => {
-            bcrypt.compare(password, user.password, (err, res) => {
-                if (res) {
-                    resolve(user);
-                } else {
-                    reject();
-                }
-            })
-        })
-    })
-}
-
-User.methods.removeToken = function (token) {
-    var user = this;
-    return user.update({
-        //$pull metodo de mongo debe que elimina de un array lo que le pasas en el objeto
-        $pull: {
-            tokens: {
-                token: token
-            }
-        }
-    })
-}
+User.methods.removeToken = function(token) {
+  var user = this;
+  return user.update({
+    //$pull metodo de mongo debe que elimina de un array lo que le pasas en el objeto
+    $pull: {
+      tokens: {
+        token: token
+      }
+    }
+  });
+};
 
 // Usuario.methods.setPassword = function(password) {
 //   this.salt = crypto.randomBytes(16).toString("hex");

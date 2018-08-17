@@ -29,7 +29,7 @@ userRoutes.route("/profile").get(auth, function(req, res) {
 });
 
 userRoutes.route("/token").delete(auth, function(req, res) {
-  console.log("User from delete token", req.user);
+  // console.log("User from delete token", req.user);
   req.user.removeToken(req.token).then(
     () => {
       res.status(200).send();
