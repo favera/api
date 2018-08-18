@@ -17,7 +17,7 @@ attendanceRoutes.route("/add").post(function(req, res) {
       res.status(200).json({ item: "Item added successfully" });
     })
     .catch(err => {
-      res.status(400).send("unable to save to database");
+      res.status(400).send(err);
       // if (err.message.indexOf("duplicate key error") !== -1) {
       //   console.log(err);
       //   Asistencia.findOneAndUpdate(
@@ -98,6 +98,7 @@ attendanceRoutes.route("/add-data").post(function(req, res) {
         if (typeof att.date === "string") {
           att.date = new Date(att.date);
         }
+        att.employee = new ObjectID(att.employee);
         bulkAttendances
           .find({ _id: ObjectID(att._id) })
           .upsert()
