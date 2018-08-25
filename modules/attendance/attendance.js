@@ -24,7 +24,7 @@ var Attendance = new Schema(
     employeeName: {
       type: String
     },
-    workingHours: {
+    workedHours: {
       type: String
     },
     extraHours: {
