@@ -44,6 +44,11 @@ var Attendance = new Schema(
       type: Boolean,
       default: false
     },
+    secondShift: {
+      type: Boolean,
+      default: false,
+      required: true
+    },
     status: {
       absence: {
         type: Boolean,
