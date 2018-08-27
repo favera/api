@@ -102,13 +102,13 @@ attendanceRoutes.route("/add-data").post(function (req, res) {
         bulkAttendances
           .find({ _id: ObjectID(att._id) })
           .upsert()
-          .updateOne(att);
+          .replaceOne(att);
       });
 
       bulkAttendances
         .execute()
         .then(response => {
-          res.status(200).send("Items add sucessfully");
+          res.status(200).send(response);
           // console.log(response);
         })
         .catch(err => res.status(400).send(err));
