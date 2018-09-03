@@ -18,11 +18,29 @@ var User = new Schema(
         message: "Is not a valid Email"
       }
     },
+    name: {
+      type: String,
+      required: true,
+      trim: true
+
+    },
+    username: {
+      type: String,
+      unique: true,
+      required: true,
+      trim: true
+
+    },
+    profile: {
+      type: String,
+      required: true
+    },
     password: {
       type: String,
       required: true,
       minlength: 6
     },
+
     tokens: [
       {
         access: {
@@ -47,14 +65,14 @@ var User = new Schema(
   }
 );
 
-User.methods.toJSON = function() {
+User.methods.toJSON = function () {
   var user = this;
   var userObject = user.toObject();
 
   return _.pick(userObject, ["_id", "email"]);
 };
 
-User.methods.generateAuthToken = function() {
+User.methods.generateAuthToken = function () {
   var user = this;
   var access = "auth";
   var token = jwt
@@ -67,12 +85,12 @@ User.methods.generateAuthToken = function() {
   });
 };
 
-User.pre("save", function(next) {
+User.pre("save", function (next) {
   var user = this;
 
   if (user.isModified("password")) {
-    bcrypt.genSalt(10, function(err, salt) {
-      bcrypt.hash(user.password, salt, function(err, hash) {
+    bcrypt.genSalt(10, function (err, salt) {
+      bcrypt.hash(user.password, salt, function (err, hash) {
         if (err) console.log(err);
         user.password = hash;
         next();
@@ -83,7 +101,7 @@ User.pre("save", function(next) {
   }
 });
 
-User.statics.findByToken = function(token) {
+User.statics.findByToken = function (token) {
   var User = this;
   var decoded, queryUser;
 
@@ -103,7 +121,7 @@ User.statics.findByToken = function(token) {
   return queryUser;
 };
 
-User.statics.findByCredentials = function(email, password) {
+User.statics.findByCredentials = function (email, password) {
   var User = this;
 
   return User.findOne({ email: email }).then(user => {
@@ -123,7 +141,7 @@ User.statics.findByCredentials = function(email, password) {
   });
 };
 
-User.methods.removeToken = function(token) {
+User.methods.removeToken = function (token) {
   var user = this;
   return user.update({
     //$pull metodo de mongo debe que elimina de un array lo que le pasas en el objeto

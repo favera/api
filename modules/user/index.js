@@ -4,7 +4,7 @@ var userRoutes = express.Router();
 var User = require("./user");
 var auth = require("./../../midlewares/authenticate");
 
-userRoutes.route("/add").post(function(req, res) {
+userRoutes.route("/add").post(function (req, res) {
   var user = new User(req.body);
 
   user
@@ -24,11 +24,11 @@ userRoutes.route("/add").post(function(req, res) {
     });
 });
 
-userRoutes.route("/profile").get(auth, function(req, res) {
+userRoutes.route("/profile").get(auth, function (req, res) {
   res.send(req.user);
 });
 
-userRoutes.route("/token").delete(auth, function(req, res) {
+userRoutes.route("/token").delete(auth, function (req, res) {
   // console.log("User from delete token", req.user);
   req.user.removeToken(req.token).then(
     () => {
