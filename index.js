@@ -7,6 +7,7 @@ var mongoose = require("./config/mongoose");
 
 var app = express();
 
+
 const port = process.env.PORT || 3000;
 
 //app.use(bodyParser.json());
@@ -18,6 +19,7 @@ app.use(
     exposedHeaders: "x-auth"
   })
 );
+app.options('*', cors());
 
 var auth = require("./midlewares/authenticate");
 var users = require("./modules/user/index");
