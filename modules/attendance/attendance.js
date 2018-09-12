@@ -40,6 +40,10 @@ var Attendance = new Schema(
       type: Boolean,
       default: false
     },
+    payHoliday: {
+      type: Boolean,
+      default: false
+    },
     hourBank: {
       type: Boolean,
       default: false
@@ -71,7 +75,7 @@ var Attendance = new Schema(
 Attendance.index({ date: 1, employee: 1 }, { unique: true });
 Attendance.plugin(mongoosePaginate);
 
-Attendance.statics.testPop = function(param) {
+Attendance.statics.testPop = function (param) {
   var attendance = this;
   var result;
 
@@ -81,10 +85,10 @@ Attendance.statics.testPop = function(param) {
       path: "employee",
       match: { nombre: { $regex: param, $options: "i" } }
     })
-    .exec(function(err, employee) {
+    .exec(function (err, employee) {
       if (err) console.log(err);
 
-      result = employee.filter(function(attendance) {
+      result = employee.filter(function (attendance) {
         return attendance.employee !== null;
       });
       console.log(result);
