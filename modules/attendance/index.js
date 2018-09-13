@@ -373,6 +373,7 @@ attendanceRoutes.route("/update/:id").put(function (req, res) {
       attendance.status.incomplete = req.body.status.incomplete;
       attendance.status.vacations = req.body.status.vacations;
       attendance.secondShift = req.body.secondShift;
+      attendance.payHoliday = req.body.payHoliday;
 
       attendance
         .save()

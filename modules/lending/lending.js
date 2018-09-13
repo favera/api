@@ -18,7 +18,13 @@ var Lending = new Schema(
     },
     amount: {
       type: Number,
-      required: true
+      required: true,
+      validate: {
+        validator: function (value) {
+          return value > 0;
+        },
+        message: "Valor debe ser mayor a 0"
+      }
     },
     coin: {
       type: String,
@@ -39,7 +45,13 @@ var Lending = new Schema(
           required: true
         },
         amount: {
-          type: Number
+          type: Number,
+          validate: {
+            validator: function (value) {
+              return value > 0;
+            },
+            message: "Valor debe ser mayor a 0"
+          }
         },
         coin: {
           type: String
