@@ -44,7 +44,13 @@ var Employee = new Schema(
     },
     salary: {
       type: Number,
-      required: true
+      required: true,
+      validate: {
+        validator: function(value) {
+          return value > 0;
+        },
+        message: "Valor debe ser mayor a 0"
+      }
     },
     salaryPerMinute: {
       type: Number,
