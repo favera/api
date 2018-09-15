@@ -465,10 +465,11 @@ attendanceRoutes.route("/amend-delay/:id").put(function (req, res) {
 //query for dashboard return all delays
 attendanceRoutes.route("/all-delays").get(function (req, res) {
   console.log(req.query.startDate, req.query.endDate);
-  Attendance.find(
-    //
-    { date: { $gte: req.query.startDate, $lte: req.query.endDate } },
-    { delay: { $ne: null } },
+  Attendance.find({
+    $and: [
+      {date: { $gte: req.query.startDate, $lte: req.query.endDate }},
+      {delay: { $ne: null }}
+    ]},
     function (err, attendances) {
       if (err) res.status(400).send(err);
       res.status(200).send(attendances);

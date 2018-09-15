@@ -171,6 +171,14 @@ eventRoutes.route("/").get(function (req, res) {
   });
 });
 
+//Lista de funcionarios en vacaciones del mes
+eventRoutes.route("/event-per-month").get(function(req, res){
+  query = {$and: [{eventType: req.query.eventType}, {
+    $or: {
+    }
+  }]}
+})
+
 // // Defined edit route
 eventRoutes.route("/edit/:id").get(function (req, res) {
   var id = req.params.id;
