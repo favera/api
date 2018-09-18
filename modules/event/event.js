@@ -14,7 +14,7 @@ var Event = new Schema(
       type: Date,
       validate: [
         {
-          validator: function(startDate) {
+          validator: function (startDate) {
             if (!startDate && this.eventType === "vacaciones") {
               return false;
             }
@@ -22,7 +22,7 @@ var Event = new Schema(
           message: "El campo es requerido"
         },
         {
-          validator: function(startDate) {
+          validator: function (startDate) {
             if (moment(startDate).isAfter(this.endDate)) {
               return false;
             }
@@ -35,7 +35,7 @@ var Event = new Schema(
       type: Date,
       validate: [
         {
-          validator: function(endDate) {
+          validator: function (endDate) {
             if (!endDate && this.eventType === "vacaciones") {
               return false;
             }
@@ -43,7 +43,7 @@ var Event = new Schema(
           message: "El campo es requerido"
         },
         {
-          validator: function(endDate) {
+          validator: function (endDate) {
             if (moment(endDate).isBefore(this.startDate)) {
               return false;
             }
@@ -58,7 +58,7 @@ var Event = new Schema(
       unique: true,
       sparse: true,
       validate: {
-        validator: function(value) {
+        validator: function (value) {
           if (!value && this.eventType === "feriado") {
             return false;
           }
@@ -69,7 +69,7 @@ var Event = new Schema(
     holidayDescription: {
       type: String,
       validate: {
-        validator: function(value) {
+        validator: function (value) {
           if (!value && this.eventType === "feriado") {
             return false;
           }
@@ -81,7 +81,7 @@ var Event = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Employee",
       validate: {
-        validator: function(value) {
+        validator: function (value) {
           if (!value && this.eventType === "vacaciones") {
             return false;
           }
@@ -90,6 +90,9 @@ var Event = new Schema(
       }
     },
     employeeName: {
+      type: String
+    },
+    remark: {
       type: String
     },
     active: {

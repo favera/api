@@ -147,14 +147,15 @@ eventRoutes.route("/deactivate-vacation/:id").get(function (req, res) {
 // Listado de Eventos
 eventRoutes.route("/").get(function (req, res) {
   var query = {};
-  if (req.query.eventType) {
-    query = { eventType: req.query.eventType };
-  }
+  // if (req.query.eventType) {
+  //   query = { eventType: req.query.eventType };
+  // }
 
   if (req.query.parameter !== "null") {
     query = {
-      eventType: req.query.eventType,
+      // eventType: req.query.eventType,
       $or: [
+        { eventType: { $regex: req.query.parameter, $options: "i" } },
         { employeeName: { $regex: req.query.parameter, $options: "i" } },
         { holidayDescription: { $regex: req.query.parameter, $options: "i" } }
       ]
@@ -172,11 +173,13 @@ eventRoutes.route("/").get(function (req, res) {
 });
 
 //Lista de funcionarios en vacaciones del mes
-eventRoutes.route("/event-per-month").get(function(req, res){
-  query = {$and: [{eventType: req.query.eventType}, {
-    $or: {
-    }
-  }]}
+eventRoutes.route("/event-per-month").get(function (req, res) {
+  query = {
+    $and: [{ eventType: req.query.eventType }, {
+      $or: {
+      }
+    }]
+  }
 })
 
 // // Defined edit route
@@ -207,6 +210,7 @@ eventRoutes.route("/update/:id").put(function (req, res) {
       event.holidayDescription = req.body.holidayDescription;
       event.employee = req.body.employee;
       event.employeeName = req.body.employeeName;
+      event.remark = req.body.remark;
 
       event
         .save()
