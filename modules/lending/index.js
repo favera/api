@@ -54,7 +54,8 @@ lendingRoutes.route("/loan-period").get(function (req, res) {
     "installments.dueDate": {
       $gte: req.query.startDate,
       $lte: req.query.endDate
-    }
+    },
+    "installments.state": "pendiente"
   })
     .then(result => {
       res.json(result);

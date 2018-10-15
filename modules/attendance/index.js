@@ -202,7 +202,8 @@ attendanceRoutes.route("/full-list").get(function (req, res) {
 });
 
 attendanceRoutes.route("/query-data").get(function (req, res) {
-  var start, end;
+  var start, end, report;
+  report = req.query.report;
   if (req.query.startDate) {
     start = new Date(req.query.startDate);
     console.log(start);
@@ -323,9 +324,18 @@ attendanceRoutes.route("/query-data").get(function (req, res) {
     page: parseInt(req.query.page),
     limit: parseInt(req.query.limit)
   };
-  Attendance.paginate(query, options).then(result => {
-    res.json(result);
-  });
+  if (report) {
+    Attendance.find(query).then(result => {
+      res.status(200).send(result)
+    }).catch(e => {
+      res.status(400).send(e);
+    })
+  } else {
+    Attendance.paginate(query, options).then(result => {
+      res.json(result);
+    });
+  }
+
 });
 
 // Defined get data(index or listing) route
@@ -467,9 +477,10 @@ attendanceRoutes.route("/all-delays").get(function (req, res) {
   console.log(req.query.startDate, req.query.endDate);
   Attendance.find({
     $and: [
-      {date: { $gte: req.query.startDate, $lte: req.query.endDate }},
-      {delay: { $ne: null }}
-    ]},
+      { date: { $gte: req.query.startDate, $lte: req.query.endDate } },
+      { delay: { $ne: null } }
+    ]
+  },
     function (err, attendances) {
       if (err) res.status(400).send(err);
       res.status(200).send(attendances);
