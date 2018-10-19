@@ -6,9 +6,12 @@ var ObjectID = require("mongodb").ObjectID;
 var Advance = require("./advance");
 
 // Defined store route
-advanceRoutes.route("/add").post(function (req, res) {
+advanceRoutes.route("/add").post(function(req, res) {
   if (req.body.date) {
     req.body.date = new Date(req.body.date);
+  }
+  if (typeof req.body.amount === "string") {
+    req.body.amount = parseInt(req.body.amount.split(".").join(""));
   }
   var advance = new Advance(req.body);
   advance
@@ -22,14 +25,14 @@ advanceRoutes.route("/add").post(function (req, res) {
 });
 
 //return all adelantos
-advanceRoutes.route("/full-list").get(function (req, res) {
+advanceRoutes.route("/full-list").get(function(req, res) {
   Advance.find().then(result => {
     res.json(result);
   });
 });
 
 //return monthly advance
-advanceRoutes.route("/monthly-advance").get(function (req, res) {
+advanceRoutes.route("/monthly-advance").get(function(req, res) {
   Advance.find({
     date: { $gte: req.query.startDate, $lte: req.query.endDate }
   })
@@ -40,7 +43,7 @@ advanceRoutes.route("/monthly-advance").get(function (req, res) {
 });
 
 // Defined get data(index or listing) route
-advanceRoutes.route("/").get(function (req, res) {
+advanceRoutes.route("/").get(function(req, res) {
   var startDate, endDate;
   var query = {};
 
@@ -99,16 +102,16 @@ advanceRoutes.route("/").get(function (req, res) {
 });
 
 // // Defined edit route
-advanceRoutes.route("/edit/:id").get(function (req, res) {
+advanceRoutes.route("/edit/:id").get(function(req, res) {
   var id = req.params.id;
-  Advance.findById(id, function (err, advance) {
+  Advance.findById(id, function(err, advance) {
     res.json(advance);
   });
 });
 
 // //  Defined update route
-advanceRoutes.route("/update/:id").put(function (req, res) {
-  Advance.findById(req.params.id, function (err, advance) {
+advanceRoutes.route("/update/:id").put(function(req, res) {
+  Advance.findById(req.params.id, function(err, advance) {
     if (!advance) res.status(404).send("Advance not found!");
     else {
       advance.date = new Date(req.body.date);
@@ -131,8 +134,8 @@ advanceRoutes.route("/update/:id").put(function (req, res) {
 });
 
 // Defined delete | remove | destroy route
-advanceRoutes.route("/delete/:id").delete(function (req, res) {
-  Advance.findByIdAndRemove({ _id: req.params.id }, function (err, item) {
+advanceRoutes.route("/delete/:id").delete(function(req, res) {
+  Advance.findByIdAndRemove({ _id: req.params.id }, function(err, item) {
     if (err) res.json(err);
     else res.json("Successfully removed");
   });
