@@ -1,5 +1,6 @@
 var express = require("express");
 var payrollRoutes = express.Router();
+var moment = require('moment');
 
 var Payroll = require("./payroll");
 var BankHour = require("./bankHours");
@@ -8,8 +9,18 @@ var Attendance = require("./../attendance/attendance");
 //### Periodo de pago de planillas de salarios
 payrollRoutes.route("/add/period").post(function (req, res) {
   console.log(req.body);
+
+  
+  
+  req.body.month = new Date(new Date(req.body.month).setHours(24,0,0,0));
+  req.body.year = new Date(new Date(req.body.year).setHours(24,0,0,0));
+  // req.body.month = moment(req.body.month).format();
+  // req.body.year = moment(req.body.year).format();
+  console.log("Fechas", req.body.month, req.body.year);
+
   var payroll = new Payroll(req.body);
 
+  
   payroll
     .save()
     .then(payroll => {

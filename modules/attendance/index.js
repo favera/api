@@ -187,14 +187,8 @@ attendanceRoutes.route("/full-list").get(function(req, res) {
   var start, end;
   console.log(req.query.startDate, req.query.endDate);
   if (req.query.startDate && req.query.endDate) {
-    start = moment(req.query.startDate)
-      .utcOffset(-4)
-      .startOf("day")
-      .format();
-    end = moment(req.query.endDate)
-      .utcOffset(-4)
-      .endOf("day")
-      .format();
+    start = new Date(new Date(req.query.startDate).setHours(24,0,0,0));
+    end = new Date(new Date(req.query.endDate).setHours(24,0,0,0));
     console.log("post format", start, end);
   }
 
@@ -217,17 +211,11 @@ attendanceRoutes.route("/query-data").get(function(req, res) {
   var start, end, report;
   report = req.query.report;
   if (req.query.startDate) {
-    start = moment(req.query.startDate)
-      .utcOffset(-4)
-      .startOf("day")
-      .format();
+    start = new Date(new Date(req.query.startDate).setHours(24,0,0,0));
     console.log(start);
   }
   if (req.query.endDate) {
-    end = moment(req.query.endDate)
-      .utcOffset(-4)
-      .endOf("day")
-      .format();
+    end = new Date(new Date(req.query.endDate).setHours(24,0,0,0));
     console.log(end);
   }
 
@@ -389,7 +377,7 @@ attendanceRoutes.route("/update/:id").put(function(req, res) {
   Attendance.findById(req.params.id, function(err, attendance) {
     if (!attendance) return res.status(400).send("unable to get the field");
     else {
-      attendance.date = new Date(req.body.date);
+      attendance.date = new Date(new Date(req.body.date).setHours(24,0,0,0));
       attendance.entryTime = req.body.entryTime;
       attendance.exitTime = req.body.exitTime;
       attendance.employee = req.body.employee;

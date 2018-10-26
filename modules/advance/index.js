@@ -7,9 +7,11 @@ var Advance = require("./advance");
 
 // Defined store route
 advanceRoutes.route("/add").post(function(req, res) {
+  console.log("Fecha Advance Previo", req.body.date);
   if (req.body.date) {
-    req.body.date = new Date(req.body.date);
+    req.body.date = new Date(new Date(req.body.date).setHours(24,0,0,0));
   }
+  console.log("Fecha Advance", req.body.date);
   if (typeof req.body.amount === "string") {
     req.body.amount = parseInt(req.body.amount.split(".").join(""));
   }
@@ -33,6 +35,10 @@ advanceRoutes.route("/full-list").get(function(req, res) {
 
 //return monthly advance
 advanceRoutes.route("/monthly-advance").get(function(req, res) {
+  //Del frontend se recibe en format yyyy-MM-dd por el tema de la zona horaria del navegador
+  req.query.startDate = new Date(new Date(req.query.startDate).setHours(24,0,0,0));
+  req.query.endDate = new Date(new Date(req.query.endDate).setHours(24,0,0,0));
+
   Advance.find({
     date: { $gte: req.query.startDate, $lte: req.query.endDate }
   })
@@ -44,15 +50,18 @@ advanceRoutes.route("/monthly-advance").get(function(req, res) {
 
 // Defined get data(index or listing) route
 advanceRoutes.route("/").get(function(req, res) {
+  
+  req.query.endDate = new Date(new Date(req.query.endDate).setHours(24,0,0,0));
+
   var startDate, endDate;
   var query = {};
 
   if (req.query.startDate !== "null") {
-    startDate = new Date(req.query.startDate);
+    startDate = req.query.startDate = new Date(new Date(req.query.startDate).setHours(24,0,0,0));
   }
 
   if (req.query.endDate !== "null") {
-    endDate = new Date(req.query.endDate);
+    endDate = req.query.endDate = new Date(new Date(req.query.endDate).setHours(24,0,0,0));
   }
 
   if (req.query.parameter === "null") {
@@ -114,7 +123,7 @@ advanceRoutes.route("/update/:id").put(function(req, res) {
   Advance.findById(req.params.id, function(err, advance) {
     if (!advance) res.status(404).send("Advance not found!");
     else {
-      advance.date = new Date(req.body.date);
+      advance.date = new Date(new Date(req.body.date).setHours(24,0,0,0));
       advance.advanceType = req.body.advanceType;
       advance.employee = req.body.employee;
       advance.employeeName = req.body.employeeName;
