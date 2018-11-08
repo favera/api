@@ -10,6 +10,9 @@ var ObjectID = require("mongodb").ObjectID;
 // Defined store route
 lendingRoutes.route("/add").post(function (req, res) {
   req.body.amount = parseInt(req.body.amount.split(".").join(""));
+  //Formato a fechas porque se recibe string entonces setea el timezone del server y se cera la hora
+  req.body.date = new Date(new Date(req.body.date).setHours(24,0,0,0));
+  req.body.startMonth = new Date(new Date(req.body.startMonth).setHours(24,0,0,0));
   var lending = new Lending(req.body);
   lending
     .save()

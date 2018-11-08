@@ -481,11 +481,11 @@ attendanceRoutes.route("/amend-delay/:id").put(function(req, res) {
 
 //query for dashboard return all delays
 attendanceRoutes.route("/all-delays").get(function(req, res) {
-  req.query.startDate = req.query.startDate
+  req.query.startDate = moment(req.query.startDate)
     .utcOffset(-4)
     .startOf("day")
     .format();
-  req.query.endDate = req.query.endDate
+  req.query.endDate = moment(req.query.endDate)
     .utcOffset(-4)
     .endOf("day")
     .format();
