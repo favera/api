@@ -44,7 +44,7 @@ var Payroll = new Schema(
           type: Number
         },
         salary: {
-          type: String
+          type: Number
           // required: true
         },
         coin: {
@@ -58,7 +58,7 @@ var Payroll = new Schema(
           type: Number
         },
         lending: {
-          type: String
+          type: Number
           // required: true
         },
 
@@ -67,11 +67,11 @@ var Payroll = new Schema(
           // required: true
         },
         extraHourValue: {
-          type: String
+          type: Number
           // required: true
         },
         salaryBalance: {
-          type: String
+          type: Number
           // required: true
         },
         salarySummary: [
@@ -83,7 +83,7 @@ var Payroll = new Schema(
               type: String
             },
             amount: {
-              type: String
+              type: Number
             },
             coin: {
               type: String

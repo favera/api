@@ -8,11 +8,13 @@ var Lending = require("./lending");
 var ObjectID = require("mongodb").ObjectID;
 
 // Defined store route
-lendingRoutes.route("/add").post(function (req, res) {
+lendingRoutes.route("/add").post(function(req, res) {
   req.body.amount = parseInt(req.body.amount.split(".").join(""));
   //Formato a fechas porque se recibe string entonces setea el timezone del server y se cera la hora
-  req.body.date = new Date(new Date(req.body.date).setHours(24,0,0,0));
-  req.body.startMonth = new Date(new Date(req.body.startMonth).setHours(24,0,0,0));
+  req.body.date = new Date(new Date(req.body.date).setHours(24, 0, 0, 0));
+  req.body.startMonth = new Date(
+    new Date(req.body.startMonth).setHours(24, 0, 0, 0)
+  );
   var lending = new Lending(req.body);
   lending
     .save()
@@ -26,7 +28,7 @@ lendingRoutes.route("/add").post(function (req, res) {
 });
 
 //retornar cuotas por funcionario y mes
-lendingRoutes.route("/employee-lending/:id").get(function (req, res) {
+lendingRoutes.route("/employee-lending/:id").get(function(req, res) {
   var installmentDate, dueDate;
   var result = [];
   dueDate = new Date(req.query.start);
@@ -35,7 +37,7 @@ lendingRoutes.route("/employee-lending/:id").get(function (req, res) {
       employee: new ObjectID(req.params.id),
       "installments.dueDate": { $gte: req.query.start, $lte: req.query.end }
     },
-    function (err, lendings) {
+    function(err, lendings) {
       if (err) res.status(400).send(err);
 
       lendings.forEach(lending => {
@@ -52,7 +54,7 @@ lendingRoutes.route("/employee-lending/:id").get(function (req, res) {
 });
 
 //return loan of period dates
-lendingRoutes.route("/loan-period").get(function (req, res) {
+lendingRoutes.route("/loan-period").get(function(req, res) {
   Lending.find({
     "installments.dueDate": {
       $gte: req.query.startDate,
@@ -67,7 +69,7 @@ lendingRoutes.route("/loan-period").get(function (req, res) {
 });
 
 //return all prestamos
-lendingRoutes.route("/full-list").get(function (req, res) {
+lendingRoutes.route("/full-list").get(function(req, res) {
   Lending.find({})
     .then(result => {
       res.json(result);
@@ -76,7 +78,7 @@ lendingRoutes.route("/full-list").get(function (req, res) {
 });
 
 // Defined get data(index or listing) route
-lendingRoutes.route("/").get(function (req, res) {
+lendingRoutes.route("/").get(function(req, res) {
   var startDate, endDate;
   var query = {};
   if (req.query.startDate !== "null") {
@@ -135,22 +137,22 @@ lendingRoutes.route("/").get(function (req, res) {
 });
 
 // // Defined edit route
-lendingRoutes.route("/edit/:id").get(function (req, res) {
+lendingRoutes.route("/edit/:id").get(function(req, res) {
   var id = req.params.id;
-  Lending.findById(id, function (err, lending) {
+  Lending.findById(id, function(err, lending) {
     res.json(lending);
   });
 });
 //Actualizar prestamos que fueron descontados en la planilla de salarios, en el body se pasa el array de los id de los prestamos
 //actualizado desde Detalle Planilla.
-lendingRoutes.route("/update/lending/processed").put(function (req, res) {
+lendingRoutes.route("/update/lending/processed").put(function(req, res) {
   console.log(req.body);
   var result;
   req.body.forEach(lending => {
     Lending.update(
       { "installments._id": new ObjectID(lending) },
-      { $set: { "installments.$.estado": "procesado" } },
-      function (err, updatedLending) {
+      { $set: { "installments.$.state": "procesado" } },
+      function(err, updatedLending) {
         if (err) {
           console.log(err);
           res.status(400).send("Error updating lendigns");
@@ -163,14 +165,41 @@ lendingRoutes.route("/update/lending/processed").put(function (req, res) {
   // if (!result) res.status(400).send("Error updating lendigns");
   res.status(200).send("All lendigns where updated");
 });
+//Actualiza estado de la cuota al estado pendiente desde resumen de salario
+lendingRoutes.route("/salary-summary/update-lending").put(function(req, res) {
+  console.log("employee", req.query);
+  //se multiplica por -1 porque para hacer el macth el valor debe ser positivo.
+  req.query.amount = parseInt(req.query.amount) * -1;
+  Lending.update(
+    {
+      $and: [
+        { employee: new ObjectID(req.query.employee) },
+        {
+          installments: {
+            $elemMatch: { dueDate: req.query.date, amount: req.query.amount }
+          }
+        }
+      ]
+    },
+    {
+      $set: {
+        "installments.$.state": "pendiente"
+      }
+    },
+    function(err, updatedLending) {
+      if (err) res.status(400).send(err);
+      res.status(200).send(updatedLending);
+    }
+  );
+});
 
 //Actualizar desde crear planilla
-lendingRoutes.route("/update/lending/paid").put(function (req, res) {
+lendingRoutes.route("/update/lending/paid").put(function(req, res) {
   Lending.update(
     { "installments.state": "procesado" },
     { $set: { "installments.$.state": "pagado" } },
     { multi: true },
-    function (err, updatedItem) {
+    function(err, updatedItem) {
       if (err) res.status(400).send(err);
       res.status(200).send(updatedItem);
     }
@@ -178,8 +207,8 @@ lendingRoutes.route("/update/lending/paid").put(function (req, res) {
 });
 
 // //  Defined update route
-lendingRoutes.route("/update/:id").put(function (req, res) {
-  Lending.findById(req.params.id, function (err, lending) {
+lendingRoutes.route("/update/:id").put(function(req, res) {
+  Lending.findById(req.params.id, function(err, lending) {
     if (!lending) res.status(404).send("Lending not found");
     else {
       lending.date = new Date(req.body.date);
@@ -203,8 +232,8 @@ lendingRoutes.route("/update/:id").put(function (req, res) {
 });
 
 // // Defined delete | remove | destroy route
-lendingRoutes.route("/delete/:id").delete(function (req, res) {
-  Lending.findByIdAndRemove({ _id: req.params.id }, function (err, item) {
+lendingRoutes.route("/delete/:id").delete(function(req, res) {
+  Lending.findByIdAndRemove({ _id: req.params.id }, function(err, item) {
     if (err) res.status(400).send(err);
     else res.status(200).send("Successfully removed");
   });
