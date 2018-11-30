@@ -123,6 +123,18 @@ employeeRoutes.route("/deactivate/:id").put(function (req, res) {
   });
 });
 
+//obtener el total de salario por moneda de los funcionarios activos
+employeeRoutes.route("/get-salaries").get(function (req, res) {
+  Employee.aggregate([
+    { $match: { active: true } },
+    { $group: { _id: "$coin", totalSalary: { $sum: "$salary" } } }
+  ], function (err, resultado) {
+    if (err) res.status(400).send(err);
+
+    res.status(200).send(resultado);
+  })
+})
+
 employeeRoutes.route("/update-vacation/:id").put(function (req, res) {
   Employee.findById(req.params.id, function (err, employee) {
     if (err || !employee) res.status(400).send(err);
