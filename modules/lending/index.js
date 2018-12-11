@@ -239,4 +239,28 @@ lendingRoutes.route("/delete/:id").delete(function(req, res) {
   });
 });
 
+//query for dashboard, get all lendings wih state pendiente
+lendingRoutes.route("/all-lendings/state-pendent").get(function(req, res) {
+  Lending.aggregate(
+    [
+      {
+        $project: {
+          employeeName: 1,
+          installments: {
+            $filter: {
+              input: "$installments",
+              as: "installment",
+              cond: { $eq: ["$$installment.state", "pendiente"] }
+            }
+          }
+        }
+      }
+    ],
+    function(err, result) {
+      if (err) res.status(400).send(err);
+      res.status(200).send(result);
+    }
+  );
+});
+
 module.exports = lendingRoutes;
