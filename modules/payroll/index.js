@@ -8,7 +8,7 @@ var BankHour = require("./bankHours");
 var Attendance = require("./../attendance/attendance");
 
 //### Periodo de pago de planillas de salarios
-payrollRoutes.route("/add/period").post(function(req, res) {
+payrollRoutes.route("/add/period").post(function (req, res) {
   console.log(req.body);
 
   req.body.month = new Date(new Date(req.body.month).setHours(24, 0, 0, 0));
@@ -30,22 +30,22 @@ payrollRoutes.route("/add/period").post(function(req, res) {
 });
 
 //Actualiza el array de detalle de salario, donde se detalla los pagos de cada funcionario
-payrollRoutes.route("/update/salary-detail/:id").put(function(req, res) {
-  Payroll.findById(req.params.id, function(err, salaryResume) {
+payrollRoutes.route("/update/salary-detail/:id").put(function (req, res) {
+  Payroll.findById(req.params.id, function (err, salaryResume) {
     if (err) res.status(400).send(err);
 
     console.log(req.body);
 
     salaryResume.salaryDetail = req.body;
     salaryResume.detail = true;
-    salaryResume.save(function(err, updatedSalaryResume) {
+    salaryResume.save(function (err, updatedSalaryResume) {
       if (err) res.status(400).send(e);
       res.status(200).send("Detail updated!");
     });
   });
 });
 
-payrollRoutes.route("/").get(function(req, res) {
+payrollRoutes.route("/").get(function (req, res) {
   var query = {};
   var options = {
     sort: { _id: -1 },
@@ -63,15 +63,15 @@ payrollRoutes.route("/").get(function(req, res) {
 });
 
 //Obtener detalle
-payrollRoutes.route("/salary-detail/:id").get(function(req, res) {
-  Payroll.findById(req.params.id).exec(function(err, salaryDetail) {
+payrollRoutes.route("/salary-detail/:id").get(function (req, res) {
+  Payroll.findById(req.params.id).exec(function (err, salaryDetail) {
     if (err) res.status(400).send(err);
     res.status(200).send(salaryDetail);
   });
 });
 
-payrollRoutes.route("/add/detail/:id").put(function(req, res) {
-  Payroll.findById(req.params.id).exec(function(err, payroll) {
+payrollRoutes.route("/add/detail/:id").put(function (req, res) {
+  Payroll.findById(req.params.id).exec(function (err, payroll) {
     if (err) res.status(400).send(err);
     payroll.salaryDetail = req.body.salaryDetail.slice();
     payroll
@@ -86,7 +86,7 @@ payrollRoutes.route("/add/detail/:id").put(function(req, res) {
 });
 
 //###Banco de Hora###
-payrollRoutes.route("/add/bank-hour/:id").post(function(req, res) {
+payrollRoutes.route("/add/bank-hour/:id").post(function (req, res) {
   var query = { employee: req.params.id };
   var update = {
     $inc: {
@@ -94,7 +94,7 @@ payrollRoutes.route("/add/bank-hour/:id").post(function(req, res) {
     }
   };
   var options = { new: true, upsert: true };
-  BankHour.findOneAndUpdate(query, update, options).exec(function(err, result) {
+  BankHour.findOneAndUpdate(query, update, options).exec(function (err, result) {
     console.log(result);
     if (err) {
       res.status(400).send(err);
@@ -104,7 +104,7 @@ payrollRoutes.route("/add/bank-hour/:id").post(function(req, res) {
   });
 });
 
-payrollRoutes.route("/bank-hour/:id").get(function(req, res) {
+payrollRoutes.route("/bank-hour/:id").get(function (req, res) {
   BankHour.find({ employee: req.params.id })
     .then(response => {
       res.status(200).send(response);
@@ -113,7 +113,7 @@ payrollRoutes.route("/bank-hour/:id").get(function(req, res) {
 });
 
 //#### Obtener historial de marcaciones por funcionario
-payrollRoutes.route("/attendance-historic/:id").get(function(req, res) {
+payrollRoutes.route("/attendance-historic/:id").get(function (req, res) {
   Attendance.find({
     $and: [
       { employee: req.params.id },
@@ -133,15 +133,15 @@ payrollRoutes.route("/attendance-historic/:id").get(function(req, res) {
 });
 
 //Defined delete | remove | destroy route
-payrollRoutes.route("/delete/:id").delete(function(req, res) {
-  Payroll.findByIdAndRemove({ _id: req.params.id }, function(err, item) {
+payrollRoutes.route("/delete/:id").delete(function (req, res) {
+  Payroll.findByIdAndRemove({ _id: req.params.id }, function (err, item) {
     if (err) res.status(400).send(err);
     res.status(200).send("Successfully removed");
   });
 });
 
 //query para eliminar cuota de salarySummary y actualizar el valor de SalaryDetail.lending
-payrollRoutes.route("/salary-summary/delete-lending").put(function(req, res) {
+payrollRoutes.route("/salary-summary/delete-lending").put(function (req, res) {
   console.log("From query", req.query);
   req.params.amount = parseInt(req.query.amount);
   Payroll.update(
@@ -153,7 +153,7 @@ payrollRoutes.route("/salary-summary/delete-lending").put(function(req, res) {
       }
     },
     { multi: false },
-    function(err, updatedLending) {
+    function (err, updatedLending) {
       if (err) res.status(400).send(err);
       res.status(200).send(updatedLending);
       // if (err) console.log(err);
@@ -162,12 +162,24 @@ payrollRoutes.route("/salary-summary/delete-lending").put(function(req, res) {
   );
 });
 
-payrollRoutes.route("/update-status/:id").put(function(req, res) {
+//Obtener el total de salario por moneda de la planilla de salarios
+payrollRoutes.route("/payroll/total-salaries").get(function (req, res) {
+  Payroll.aggregate([
+    { $match: { month: new Date(new Date(req.params.date).setHours(24, 0, 0, 0)) } },
+    { $unwind: "$salaryDetail" },
+    { $group: { _id: "$salaryDetail.coin", payrollSalaries: { $sum: "$salaryDetail.salaryBalance" } } }
+  ], function (err, result) {
+    if (err) res.status(400).send(err)
+    res.status(200).send(result)
+  })
+})
+
+payrollRoutes.route("/update-status/:id").put(function (req, res) {
   Payroll.findByIdAndUpdate(
     req.params.id,
     { status: "Aprobado" },
     { new: true },
-    function(err, updatedPayroll) {
+    function (err, updatedPayroll) {
       if (err) res.status(400).send(err);
       res.status(200).send(updatedPayroll);
     }
