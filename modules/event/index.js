@@ -179,7 +179,7 @@ eventRoutes.route("/").get(function(req, res) {
     };
   }
   var options = {
-    sort: { name: 1 },
+    sort: { startDate: -1, holidayDate: -1},
     lean: true,
     page: parseInt(req.query.page),
     limit: parseInt(req.query.limit)

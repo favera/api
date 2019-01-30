@@ -58,9 +58,15 @@ attendanceRoutes.route("/add").post(function(req, res) {
 
 // Defined store route
 attendanceRoutes.route("/add-data").post(function(req, res) {
-  // console.log(req.body);
+  console.log("FECHAX", req.body[0].date);
   // console.log("END BODY");
-  var dateAttSheet = req.body[0].date;
+  var dateAttSheet = new Date(
+    req.body[0].date
+      .split("/")
+      .reverse()
+      .join("/")
+  );
+  console.log(dateAttSheet);
   var id;
   let attOfDate = [];
   Attendance.find({
@@ -382,7 +388,7 @@ attendanceRoutes.route("/update/:id").put(function(req, res) {
   Attendance.findById(req.params.id, function(err, attendance) {
     if (!attendance) return res.status(400).send("unable to get the field");
     else {
-      attendance.date = new Date(new Date(req.body.date).setHours(24, 0, 0, 0));
+      // attendance.date = new Date(new Date(req.body.date).setHours(24, 0, 0, 0));
       attendance.entryTime = req.body.entryTime;
       attendance.exitTime = req.body.exitTime;
       attendance.employee = req.body.employee;
@@ -403,7 +409,7 @@ attendanceRoutes.route("/update/:id").put(function(req, res) {
           res.json("Update complete");
         })
         .catch(err => {
-          res.status(400).send("unable to update the database");
+          res.status(400).send(err);
         });
     }
   });
